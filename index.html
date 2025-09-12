@@ -100,7 +100,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const allDOMElements = {
+        const UI = {
             authSection: document.getElementById('auth-section'), loggedInContent: document.getElementById('logged-in-content'),
             productListDiv: document.getElementById('product-list'), orderHistoryList: document.getElementById('order-history-list'),
             searchBar: document.getElementById('search-bar'), forgotPasswordLink: document.getElementById('forgot-password-link'),
@@ -118,38 +118,36 @@
         };
         
         let productsData = [];
+        let unsubscribeOrders = null;
 
         const showModal = (title, body, buttons = []) => {
-            allDOMElements.modalTitle.textContent = title; allDOMElements.modalBody.innerHTML = body; allDOMElements.modalFooter.innerHTML = '';
+            UI.modalTitle.textContent = title; UI.modalBody.innerHTML = body; UI.modalFooter.innerHTML = '';
             if (buttons.length === 0) buttons.push({ text: 'Close', class: 'bg-gray-500', action: hideModal });
             buttons.forEach(btn => {
                 const el = document.createElement('button');
                 el.textContent = btn.text; el.className = `text-white px-6 py-2 rounded-lg ${btn.class}`; el.onclick = btn.action;
-                allDOMElements.modalFooter.appendChild(el);
+                UI.modalFooter.appendChild(el);
             });
-            allDOMElements.modal.classList.remove('hidden');
-            setTimeout(() => allDOMElements.modalContent.classList.remove('scale-95', 'opacity-0'), 10);
+            UI.modal.classList.remove('hidden');
+            setTimeout(() => UI.modalContent.classList.remove('scale-95', 'opacity-0'), 10);
         };
         const hideModal = () => {
-            allDOMElements.modalContent.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => allDOMElements.modal.classList.add('hidden'), 300);
+            UI.modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => UI.modal.classList.add('hidden'), 300);
         };
 
-        const updateNav = (user) => {
+        const updateNavUI = (user) => {
             const isLoggedIn = !!user;
-            allDOMElements.authSection.classList.toggle('hidden', isLoggedIn);
-            allDOMElements.loggedInContent.classList.toggle('hidden', !isLoggedIn);
-            allDOMElements.authLinksDesktop.classList.toggle('hidden', isLoggedIn);
-            allDOMElements.authLinksMobile.classList.toggle('hidden', isLoggedIn);
-            allDOMElements.profileDropdownContainer.classList.toggle('hidden', !isLoggedIn);
-            allDOMElements.profileInfoMobile.classList.toggle('hidden', !isLoggedIn);
-            if (isLoggedIn) allDOMElements.userEmailDisplays.forEach(el => el.textContent = user.email);
+            UI.authSection.classList.toggle('hidden', isLoggedIn); UI.loggedInContent.classList.toggle('hidden', !isLoggedIn);
+            UI.authLinksDesktop.classList.toggle('hidden', isLoggedIn); UI.authLinksMobile.classList.toggle('hidden', isLoggedIn);
+            UI.profileDropdownContainer.classList.toggle('hidden', !isLoggedIn); UI.profileInfoMobile.classList.toggle('hidden', !isLoggedIn);
+            if (isLoggedIn) UI.userEmailDisplays.forEach(el => el.textContent = user.email);
         };
 
         onAuthStateChanged(auth, user => {
-            updateNav(user);
+            updateNavUI(user);
             if (user) { fetchProducts(); fetchUserOrders(user.uid); }
-            else { allDOMElements.productListDiv.innerHTML = ''; productsData = []; }
+            else { UI.productListDiv.innerHTML = ''; productsData = []; if (unsubscribeOrders) unsubscribeOrders(); }
         });
 
         const handleBuyNow = (productId) => {
@@ -173,64 +171,68 @@
         };
         
         const showProductDetails = (productId) => {
-            const product = productsData.find(p => p.id === productId);
-            if (!product) return;
+            const product = productsData.find(p => p.id === productId); if (!product) return;
             showModal(product.name, `<img src="${product.imageUrl}" class="w-full h-64 object-cover rounded-lg mb-4"><p>${product.description || 'No details available.'}</p>`);
         };
 
-        allDOMElements.productListDiv.addEventListener('click', (e) => {
+        UI.productListDiv.addEventListener('click', (e) => {
             const card = e.target.closest('.product-card'); if (!card) return;
-            if (e.target.classList.contains('buy-now-btn')) handleBuyNow(card.dataset.id);
-            else showProductDetails(card.dataset.id);
+            if (e.target.classList.contains('buy-now-btn')) handleBuyNow(card.dataset.id); else showProductDetails(card.dataset.id);
         });
         
-        allDOMElements.searchBar.addEventListener('keyup', () => {
-            const term = allDOMElements.searchBar.value.toLowerCase();
+        UI.searchBar.addEventListener('keyup', () => {
+            const term = UI.searchBar.value.toLowerCase();
             document.querySelectorAll('.product-card').forEach(card => card.style.display = card.dataset.name.toLowerCase().includes(term) ? '' : 'none');
         });
 
         const fetchProducts = async () => {
-            productsData = [];
-            allDOMElements.productListDiv.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
-            const q = query(collection(db, "products"), orderBy("name"));
-            const snapshot = await getDocs(q);
-            allDOMElements.productListDiv.innerHTML = '';
-            if(snapshot.empty) allDOMElements.productListDiv.innerHTML = `<p class="col-span-full text-center">No products found.</p>`;
+            productsData = []; UI.productListDiv.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
+            const q = query(collection(db, "products"), orderBy("name")); const snapshot = await getDocs(q);
+            UI.productListDiv.innerHTML = '';
+            if(snapshot.empty) UI.productListDiv.innerHTML = `<p class="col-span-full text-center">No products found.</p>`;
             else snapshot.forEach(doc => {
-                const p = { ...doc.data(), id: doc.id };
-                productsData.push(p);
-                allDOMElements.productListDiv.innerHTML += `
+                const p = { ...doc.data(), id: doc.id }; productsData.push(p);
+                UI.productListDiv.innerHTML += `
                     <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-id="${p.id}" data-name="${p.name}">
                         <img class="h-64 w-full object-cover pointer-events-none" src="${p.imageUrl}" alt="${p.name}">
                         <div class="p-6 pointer-events-none"><h3 class="text-xl font-semibold">${p.name}</h3><p class="text-sm font-bold text-teal-500 my-2">♦️ ${p.diamonds || 0}</p><p class="text-2xl font-bold mb-4">$${p.price.toFixed(2)}</p></div>
-                        <div class="p-4 pt-0"><button class="buy-now-btn w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">Buy Now</button></div>
+                        <div class="p-4 pt-0"><button data-id="${p.id}" class="buy-now-btn w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">Buy Now</button></div>
                     </div>`;
             });
         };
 
         const fetchUserOrders = (userId) => {
+            if (unsubscribeOrders) unsubscribeOrders();
             const q = query(collection(db, "orders"), where("userId", "==", userId), orderBy("orderDate", "desc"));
-            onSnapshot(q, (snapshot) => {
-                allDOMElements.orderHistoryList.innerHTML = "";
-                if (snapshot.empty) { allDOMElements.orderHistoryList.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No orders yet.</td></tr>'; return; }
+            unsubscribeOrders = onSnapshot(q, (snapshot) => {
+                UI.orderHistoryList.innerHTML = "";
+                if (snapshot.empty) { UI.orderHistoryList.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No orders yet.</td></tr>'; return; }
                 snapshot.forEach(doc => {
                     const order = doc.data();
                     const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleDateString() : '...';
                     let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || '';
-                    allDOMElements.orderHistoryList.innerHTML += `<tr><td class="p-4 font-medium">${order.productName}</td><td class="p-4">${date}</td><td class="p-4">$${order.price.toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 text-xs rounded-full ${s}">${order.status}</span></td></tr>`;
+                    UI.orderHistoryList.innerHTML += `<tr><td class="p-4 font-medium">${order.productName}</td><td class="p-4">${date}</td><td class="p-4">$${order.price.toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 text-xs rounded-full ${s}">${order.status}</span></td></tr>`;
                 });
-            }, () => allDOMElements.orderHistoryList.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Error loading orders. A database index may be required.</td></tr>`);
+            }, () => UI.orderHistoryList.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Error loading orders. A DB index is required.</td></tr>`);
         };
 
-        allDOMElements.forgotPasswordLink.addEventListener('click', async () => {
-            const email = prompt("Enter your email for a password reset link:");
-            if (email) { try { await sendPasswordResetEmail(auth, email); showModal('Success', 'Password reset link sent to your email.'); } catch (err) { showModal('Error', err.message); }}
+        UI.forgotPasswordLink.addEventListener('click', async () => {
+            const email = prompt("Enter email for password reset link:");
+            if (email) { try { await sendPasswordResetEmail(auth, email); showModal('Success', 'Password reset link sent.'); } catch (err) { showModal('Error', err.message); }}
         });
         
-        allDOMElements.loginForm.addEventListener('submit', async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, allDOMElements.loginForm.loginEmail.value, allDOMElements.loginForm.loginPassword.value); } catch (err) { showModal('Login Failed', err.message); }});
-        allDOMElements.signupForm.addEventListener('submit', async e => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, allDOMElements.signupForm.signupEmail.value, allDOMElements.signupForm.signupPassword.value); } catch (err) { showModal('Signup Failed', err.message); }});
+        UI.loginForm.addEventListener('submit', async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, UI.loginForm.loginEmail.value, UI.loginForm.loginPassword.value); } catch (err) { showModal('Login Failed', err.message); }});
+        UI.signupForm.addEventListener('submit', async e => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, UI.signupForm.signupEmail.value, UI.signupForm.signupPassword.value); } catch (err) { showModal('Signup Failed', err.message); }});
         
-        allDOMElements.profileMenuButton.addEventListener('click', () => allDOMElements.profileMenu.classList.toggle('hidden'));
-        allDOMElements.mobileMenuButton.addEventListener('click', () => allDOMElements.mobileMenu.classList.toggle('hidden'));
-        allDOMElements.loginTab.addEventListener('click', () => { allDOMElements.signupFormContainer.classList.add('hidden'); allDOMElements.loginFormContainer.classList.remove('hidden'); allDOMElements.loginTab.classList.add('tab-active'); allDOMElements.signupTab.classList.remove('tab-active'); });
-        allDOMElements.signupTab.addEventListener('click', () => { allDOMElements.loginFormContainer.classList.add('hidden'); allDOMElements.si
+        UI.profileMenuButton.addEventListener('click', () => UI.profileMenu.classList.toggle('hidden'));
+        UI.mobileMenuButton.addEventListener('click', () => UI.mobileMenu.classList.toggle('hidden'));
+        UI.loginTab.addEventListener('click', () => { UI.signupFormContainer.classList.add('hidden'); UI.loginFormContainer.classList.remove('hidden'); UI.loginTab.classList.add('tab-active'); UI.signupTab.classList.remove('tab-active'); });
+        UI.signupTab.addEventListener('click', () => { UI.loginFormContainer.classList.add('hidden'); UI.signupFormContainer.classList.remove('hidden'); UI.signupTab.classList.add('tab-active'); UI.loginTab.classList.remove('tab-active'); });
+        
+        const handleLogout = () => signOut(auth);
+        UI.logoutButtonDesktop.addEventListener('click', handleLogout);
+        UI.logoutButtonMobile.addEventListener('click', handleLogout);
+        UI.modal.addEventListener('click', (e) => { if(e.target === UI.modal) hideModal(); });
+    </script>
+</body>
+                                                                                             </html>

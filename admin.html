@@ -11,33 +11,26 @@
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
-
     <nav class="bg-indigo-700 p-4 text-white shadow-md"><div class="container mx-auto flex justify-between items-center"><h1 class="text-2xl font-bold">LP SHOP Admin Panel</h1><button id="adminLogoutButton" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded hidden">Logout</button></div></nav>
-
     <div class="container mx-auto p-6">
         <section id="admin-login-section" class="bg-white p-8 rounded-lg shadow-md mb-8 max-w-md mx-auto">
              <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Admin Login</h2>
-            <form id="adminLoginForm" class="space-y-4"><input type="email" id="adminLoginEmail" placeholder="Admin Email" required class="w-full p-3 border rounded-md"><input type="password" id="adminLoginPassword" placeholder="Admin Password" required class="w-full p-3 border rounded-md"><button type="submit" class="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700">Login</button><p id="adminLoginError" class="text-red-500 text-sm mt-2 text-center h-4"></p></form>
+            <form id="adminLoginForm" class="space-y-4"><input type="email" id="adminLoginEmail" placeholder="Admin Email" required class="w-full p-3 border rounded-md"><input type="password" id="adminLoginPassword" placeholder="Admin Password" required class="w-full p-3 border rounded-md"><button type="submit" class="w-full bg-indigo-600 text-white p-3 rounded-md">Login</button><p id="adminLoginError" class="text-red-500 text-sm mt-2 text-center h-4"></p></form>
         </section>
-
         <main id="admin-panel-content" class="hidden">
-            <div class="mb-6 border-b border-gray-200"><nav class="-mb-px flex space-x-4" aria-label="Tabs"><button id="orders-tab" class="tab-active whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Order Management</button><button id="products-tab" class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Product Management</button><button id="users-tab" class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">User Management</button></nav></div>
-            
+            <div class="mb-6 border-b border-gray-200"><nav class="-mb-px flex space-x-4" aria-label="Tabs"><button id="orders-tab" class="tab-active py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Orders</button><button id="products-tab" class="text-gray-500 py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Products</button><button id="users-tab" class="text-gray-500 py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Users</button></nav></div>
             <section id="order-management-section">
-                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold text-gray-800 mb-6">Manage Customer Orders</h2><div class="overflow-x-auto"><table class="min-w-full bg-white border"><thead><tr class="bg-gray-50"><th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Date</th><th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Customer</th><th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Product</th><th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Status</th><th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead><tbody id="adminOrderTableBody" class="divide-y divide-gray-200"></tbody></table></div></div>
+                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-6">Manage Orders</h2><div class="overflow-x-auto"><table class="min-w-full"><thead><tr class="bg-gray-50"><th>Date</th><th>Customer</th><th>Product</th><th>Status</th><th>Actions</th></tr></thead><tbody id="adminOrderTableBody" class="divide-y"></tbody></table></div></div>
             </section>
-            
             <section id="product-management-section" class="hidden">
-                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold text-gray-800 mb-6">Add New Product</h2><form id="addProductForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"><div><label for="productName" class="block text-sm font-bold mb-2">Product Name:</label><input type="text" id="productName" required class="w-full p-3 border rounded-md"></div><div><label for="productPrice" class="block text-sm font-bold mb-2">Price ($):</label><input type="number" id="productPrice" step="0.01" required class="w-full p-3 border rounded-md"></div><div><label for="productDiamonds" class="block text-sm font-bold mb-2">Diamonds:</label><input type="number" id="productDiamonds" required class="w-full p-3 border rounded-md"></div><div><label for="productImageUrl" class="block text-sm font-bold mb-2">Image URL:</label><input type="url" id="productImageUrl" required class="w-full p-3 border rounded-md"></div><div class="md:col-span-2"><button type="submit" class="w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700">Add Product</button></div></form><h2 class="text-2xl font-bold text-gray-800 mb-6 mt-10">Product List</h2><div class="overflow-x-auto"><table class="min-w-full bg-white border"><thead><tr class="bg-gray-50"><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody id="adminProductTableBody" class="divide-y"></tbody></table></div></div>
+                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-6">Add Product</h2><form id="addProductForm" class="grid md:grid-cols-2 gap-4 mb-8"><div><label>Name</label><input type="text" id="productName" required class="w-full p-3 border rounded-md"></div><div><label>Price ($)</label><input type="number" id="productPrice" step="0.01" required class="w-full p-3 border rounded-md"></div><div><label>Diamonds</label><input type="number" id="productDiamonds" required class="w-full p-3 border rounded-md"></div><div><label>Image URL</label><input type="url" id="productImageUrl" required class="w-full p-3 border rounded-md"></div><div class="md:col-span-2"><label>Description</label><textarea id="productDescription" class="w-full p-3 border rounded-md" rows="3"></textarea></div><div class="md:col-span-2"><button type="submit" class="w-full bg-green-600 text-white p-3 rounded-md">Add Product</button></div></form><h2 class="text-2xl font-bold mt-10 mb-6">Product List</h2><div class="overflow-x-auto"><table class="min-w-full"><thead><tr class="bg-gray-50"><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody id="adminProductTableBody" class="divide-y"></tbody></table></div></div>
             </section>
-
             <section id="user-management-section" class="hidden">
-                 <div class="bg-white p-8 rounded-lg shadow-md text-center"><h2 class="text-2xl font-bold text-gray-800 mb-4">Manage Users in the Console</h2><p class="mb-6 text-gray-600 max-w-xl mx-auto">To securely manage users, please use the official Firebase Console.</p><a href="https://console.firebase.google.com/project/lpshop-c8fe6/authentication/users" target="_blank" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700">Open Firebase User Console</a></div>
+                 <div class="bg-white p-8 rounded-lg shadow-md text-center"><h2 class="text-2xl font-bold mb-4">Manage Users in Console</h2><p class="mb-6 text-gray-600">Securely manage users via the official Firebase Console.</p><a href="https://console.firebase.google.com/project/lpshop-c8fe6/authentication/users" target="_blank" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg">Open User Console</a></div>
             </section>
         </main>
     </div>
-
-    <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop"><div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6"><h3 class="text-2xl font-bold mb-4">Edit Product</h3><form id="editProductForm"><input type="hidden" id="editProductId"><div class="space-y-4"><div><label for="editProductName">Name</label><input type="text" id="editProductName" required class="mt-1 block w-full border rounded-md py-2 px-3"></div><div><label for="editProductPrice">Price ($)</label><input type="number" id="editProductPrice" step="0.01" required class="mt-1 block w-full border rounded-md py-2 px-3"></div><div><label for="editProductDiamonds">Diamonds</label><input type="number" id="editProductDiamonds" required class="mt-1 block w-full border rounded-md py-2 px-3"></div><div><label for="editProductImageUrl">Image URL</label><input type="url" id="editProductImageUrl" required class="mt-1 block w-full border rounded-md py-2 px-3"></div></div><div class="mt-6 flex justify-end space-x-3"><button type="button" id="cancel-edit-btn" class="bg-gray-200 px-4 py-2 rounded-md">Cancel</button><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Save Changes</button></div></form></div></div>
+    <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop"><div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6"><h3 class="text-2xl font-bold mb-4">Edit Product</h3><form id="editProductForm"><input type="hidden" id="editProductId"><div class="space-y-4"><div><label>Name</label><input type="text" id="editProductName" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Price ($)</label><input type="number" id="editProductPrice" step="0.01" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Diamonds</label><input type="number" id="editProductDiamonds" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Image URL</label><input type="url" id="editProductImageUrl" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Description</label><textarea id="editProductDescription" class="mt-1 w-full border rounded-md py-2 px-3" rows="3"></textarea></div></div><div class="mt-6 flex justify-end space-x-3"><button type="button" id="cancel-edit-btn" class="bg-gray-200 px-4 py-2 rounded-md">Cancel</button><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Save</button></div></form></div></div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
@@ -66,15 +59,15 @@
         const checkAdminStatus = async (user) => { if (!user) return false; const adminDoc = await getDoc(doc(db, 'admins', user.uid)); return adminDoc.exists(); };
 
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const isAdmin = await checkAdminStatus(user);
-                if (isAdmin) {
-                    adminLoginSection.classList.add('hidden'); adminPanelContent.classList.remove('hidden');
-                    adminLogoutButton.classList.remove('hidden');
-                    fetchAdminOrders();
-                    fetchAdminProducts();
-                } else { alert("Access Denied."); await signOut(auth); }
-            } else { adminLoginSection.classList.remove('hidden'); adminPanelContent.classList.add('hidden'); adminLogoutButton.classList.add('hidden'); }
+            if (user && await checkAdminStatus(user)) {
+                adminLoginSection.classList.add('hidden'); adminPanelContent.classList.remove('hidden');
+                adminLogoutButton.classList.remove('hidden');
+                fetchAdminOrders(); fetchAdminProducts();
+            } else {
+                if (user) { await signOut(auth); alert("Access Denied. You are not an admin."); }
+                adminLoginSection.classList.remove('hidden'); adminPanelContent.classList.add('hidden');
+                adminLogoutButton.classList.add('hidden');
+            }
         });
 
         const tabs = { 'orders-tab': 'order-management-section', 'products-tab': 'product-management-section', 'users-tab': 'user-management-section' };
@@ -82,7 +75,7 @@
             if (e.target.tagName === 'BUTTON') {
                 document.querySelectorAll('nav[aria-label="Tabs"] button').forEach(b => b.classList.remove('tab-active'));
                 e.target.classList.add('tab-active');
-                Object.values(tabs).forEach(sectionId => document.getElementById(sectionId).classList.add('hidden'));
+                Object.values(tabs).forEach(id => document.getElementById(id).classList.add('hidden'));
                 document.getElementById(tabs[e.target.id]).classList.remove('hidden');
             }
         });
@@ -91,20 +84,17 @@
             const q = query(collection(db, "orders"), orderBy("orderDate", "desc"));
             onSnapshot(q, snapshot => {
                 adminOrderTableBody.innerHTML = "";
+                if (snapshot.empty) { adminOrderTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No orders yet.</td></tr>'; return; }
                 snapshot.forEach(doc => {
                     const order = { ...doc.data(), id: doc.id };
-                    const orderDate = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : 'N/A';
-                    let statusClass = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || '';
-                    adminOrderTableBody.innerHTML += `<tr><td class="py-4 px-6 text-sm">${orderDate}</td><td class="py-4 px-6 text-sm font-medium">${order.userEmail}</td><td class="py-4 px-6 text-sm">${order.productName}</td><td class="py-4 px-6"><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${order.status}</span></td><td class="py-4 px-6 text-sm space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`;
+                    const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : '...';
+                    let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || '';
+                    adminOrderTableBody.innerHTML += `<tr class="text-sm"><td class="p-4">${date}</td><td class="p-4 font-medium">${order.userEmail}</td><td class="p-4">${order.productName}</td><td class="p-4"><span class="px-2 py-1 rounded-full ${s}">${order.status}</span></td><td class="p-4 space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`;
                 });
             });
         };
-
-        const handleOrderAction = async (orderId, newStatus) => {
-            if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) return;
-            try { await updateDoc(doc(db, "orders", orderId), { status: newStatus }); alert(`Order has been ${newStatus.toLowerCase()}.`); } catch (error) { alert("Failed to update order."); }
-        };
-
+        
+        const handleOrderAction = async (id, status) => { if (confirm(`Set order to ${status}?`)) await updateDoc(doc(db, "orders", id), { status }); };
         adminOrderTableBody.addEventListener('click', e => {
             const { classList, dataset } = e.target;
             if (classList.contains('approve-order-btn')) handleOrderAction(dataset.id, 'Completed');
@@ -114,32 +104,25 @@
         const fetchAdminProducts = () => {
             const q = query(collection(db, 'products'), orderBy('name'));
             onSnapshot(q, snapshot => {
-                productsData = [];
-                adminProductTableBody.innerHTML = '';
+                productsData = []; adminProductTableBody.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const product = { ...doc.data(), id: doc.id };
-                    productsData.push(product);
-                    adminProductTableBody.innerHTML += `<tr><td class="p-4"><img src="${product.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${product.name}</td><td class="p-4">$${product.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${product.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${product.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`;
+                    const p = { ...doc.data(), id: doc.id }; productsData.push(p);
+                    adminProductTableBody.innerHTML += `<tr class="text-sm"><td class="p-4"><img src="${p.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${p.name}</td><td class="p-4">$${p.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${p.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${p.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`;
                 });
             });
         };
-
+        
         adminProductTableBody.addEventListener('click', e => {
             const { classList, dataset } = e.target;
-            if (classList.contains('delete-product-btn')) { if (confirm('Delete this product?')) deleteDoc(doc(db, 'products', dataset.id)); }
-            if (classList.contains('edit-product-btn')) { const p = productsData.find(prod => prod.id === dataset.id); if (p) { editProductForm.editProductId.value = p.id; editProductForm.editProductName.value = p.name; editProductForm.editProductPrice.value = p.price; editProductForm.editProductDiamonds.value = p.diamonds; editProductForm.editProductImageUrl.value = p.imageUrl; editModal.classList.remove('hidden'); } }
+            if (classList.contains('delete-product-btn')) { if (confirm('Delete?')) deleteDoc(doc(db, 'products', dataset.id)); }
+            if (classList.contains('edit-product-btn')) { const p = productsData.find(prod => prod.id === dataset.id); if (p) { editProductForm.editProductId.value = p.id; editProductForm.editProductName.value = p.name; editProductForm.editProductPrice.value = p.price; editProductForm.editProductDiamonds.value = p.diamonds; editProductForm.editProductImageUrl.value = p.imageUrl; editProductForm.editProductDescription.value = p.description || ''; editModal.classList.remove('hidden'); } }
         });
 
-        editProductForm.addEventListener('submit', async e => {
-            e.preventDefault();
-            const productId = editProductForm.editProductId.value;
-            try { await updateDoc(doc(db, "products", productId), { name: editProductForm.editProductName.value, price: parseFloat(editProductForm.editProductPrice.value), diamonds: parseInt(editProductForm.editProductDiamonds.value), imageUrl: editProductForm.editProductImageUrl.value }); alert('Product updated!'); editModal.classList.add('hidden'); } catch (error) { alert("Failed to update product."); }
-        });
-
-        addProductForm.addEventListener('submit', async e => { e.preventDefault(); try { await addDoc(collection(db, 'products'), { name: addProductForm.productName.value, price: parseFloat(addProductForm.productPrice.value), diamonds: parseInt(addProductForm.productDiamonds.value), imageUrl: addProductForm.productImageUrl.value }); addProductForm.reset(); } catch (e) { alert('Failed to add product.') } });
-        adminLoginForm.addEventListener('submit', async e => { e.preventDefault(); adminLoginError.textContent = ''; try { const userCredential = await signInWithEmailAndPassword(auth, adminLoginForm.adminLoginEmail.value, adminLoginForm.adminLoginPassword.value); if (!await checkAdminStatus(userCredential.user)) { adminLoginError.textContent = "Access Denied."; await signOut(auth); } } catch (error) { adminLoginError.textContent = error.message; } });
+        editProductForm.addEventListener('submit', async e => { e.preventDefault(); await updateDoc(doc(db, "products", editProductForm.editProductId.value), { name: editProductForm.editProductName.value, price: parseFloat(editProductForm.editProductPrice.value), diamonds: parseInt(editProductForm.editProductDiamonds.value), imageUrl: editProductForm.editProductImageUrl.value, description: editProductForm.editProductDescription.value }); editModal.classList.add('hidden'); });
+        addProductForm.addEventListener('submit', async e => { e.preventDefault(); await addDoc(collection(db, 'products'), { name: addProductForm.productName.value, price: parseFloat(addProductForm.productPrice.value), diamonds: parseInt(addProductForm.productDiamonds.value), imageUrl: addProductForm.productImageUrl.value, description: addProductForm.productDescription.value }); addProductForm.reset(); });
+        adminLoginForm.addEventListener('submit', async e => { e.preventDefault(); adminLoginError.textContent = ''; try { const userCred = await signInWithEmailAndPassword(auth, adminLoginForm.adminLoginEmail.value, adminLoginForm.adminLoginPassword.value); if (!await checkAdminStatus(userCred.user)) { adminLoginError.textContent = 'Access Denied.'; signOut(auth); }} catch (err) { adminLoginError.textContent = 'Login failed.'; } });
         cancelEditBtn.addEventListener('click', () => editModal.classList.add('hidden'));
         adminLogoutButton.addEventListener('click', () => signOut(auth));
     </script>
 </body>
-    </html>
+</html>

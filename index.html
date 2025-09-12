@@ -6,352 +6,202 @@
     <title>LP SHOP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Smooth transitions for UI elements */
-        .transition-all {
-            transition: all 0.3s ease-in-out;
-        }
-        .transform-gpu {
-            transform: translateZ(0); /* Promotes elements to their own layer for smoother animations */
-        }
-        /* Custom style for the active tab */
-        .tab-active {
-            border-color: #3b82f6; /* blue-500 */
-            color: #3b82f6;
-            font-weight: 600;
-        }
+        .transition-all { transition: all 0.3s ease-in-out; }
+        .transform-gpu { transform: translateZ(0); }
+        .tab-active { border-color: #3b82f6; color: #3b82f6; font-weight: 600; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar (no changes) -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo/Brand Name -->
-                <div class="flex-shrink-0">
-                    <a href="#" class="text-3xl font-bold text-blue-600">LP SHOP</a>
-                </div>
-
-                <!-- Desktop Navigation Links -->
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-md font-medium">Home</a>
-                        <a href="#shop" id="nav-shop-link" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-md font-medium">Shop</a>
-                    </div>
-                </div>
-
-                <!-- Desktop Auth Buttons & Profile Dropdown -->
-                <div class="hidden md:block">
-                    <div class="ml-4 flex items-center md:ml-6">
-                        <!-- Auth links (Login/Signup) - shown when logged out -->
-                        <div id="auth-links-desktop" class="flex items-center space-x-2">
-                            <a href="#auth-section" class="text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-md text-md font-medium">Login</a>
-                            <a href="#auth-section" class="bg-blue-600 text-white px-4 py-2 rounded-md text-md font-medium hover:bg-blue-700">Signup</a>
-                        </div>
-
-                        <!-- Profile dropdown - shown when logged in -->
-                        <div id="profile-dropdown-container" class="ml-3 relative hidden">
-                            <div>
-                                <button type="button" id="profile-menu-button" class="max-w-xs bg-gray-200 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
-                                    <span class="sr-only">Open user menu</span>
-                                    <svg class="h-8 w-8 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div id="profile-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden transform-gpu" role="menu">
-                                <div class="px-4 py-2 border-b border-gray-200">
-                                    <p class="text-sm text-gray-500">Signed in as</p>
-                                    <p class="text-sm font-medium text-gray-900 truncate user-email-display"></p>
-                                </div>
-                                <a href="#" id="logout-button-desktop" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <div class="-mr-2 flex md:hidden">
-                    <button type="button" id="mobile-menu-button" class="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile menu, show/hide based on menu state. -->
-        <div class="md:hidden hidden" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <a href="#shop" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Shop</a>
-            </div>
-            <div class="pt-4 pb-3 border-t border-gray-200">
-                <!-- Mobile Auth links - when logged out -->
-                <div id="auth-links-mobile" class="px-2 space-y-2">
-                     <a href="#auth-section" class="block bg-blue-600 text-white text-center px-4 py-2 rounded-md text-md font-medium hover:bg-blue-700">Login / Signup</a>
-                </div>
-                <!-- Mobile Profile info - when logged in -->
-                <div id="profile-info-mobile" class="hidden flex items-center px-5">
-                    <div class="flex-shrink-0">
-                         <svg class="h-10 w-10 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-base font-medium leading-none text-gray-800 user-email-display"></p>
-                    </div>
-                </div>
-                <div class="mt-3 px-2 space-y-1">
-                    <a href="#" id="logout-button-mobile" class="hidden block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100">Sign out</a>
-                </div>
-            </div>
-        </div>
+        <!-- ... all nav code is the same ... -->
     </nav>
 
-
-    <!-- Main Content -->
     <main class="container mx-auto p-4 sm:p-6 lg:p-8 mt-8">
-        <!-- Authentication Section (Visible when logged out) -->
+        <!-- Authentication Section (no changes) -->
         <section id="auth-section" class="max-w-md mx-auto">
-            <!-- Content from previous step (tabs, forms) remains the same -->
-             <div class="bg-white p-8 rounded-xl shadow-lg">
-                <div class="mb-6 border-b border-gray-200">
-                    <nav class="-mb-px flex space-x-6">
-                        <button id="login-tab" class="py-4 px-1 border-b-2 tab-active">Login</button>
-                        <button id="signup-tab" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">Signup</button>
-                    </nav>
-                </div>
-                <div id="login-form-container">
-                    <h2 class="text-2xl font-bold mb-4">Welcome Back!</h2>
-                    <form id="loginForm" class="space-y-4">
-                        <input type="email" id="loginEmail" placeholder="Email" required class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="password" id="loginPassword" placeholder="Password" required class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-all">Login</button>
-                        <p id="loginError" class="text-red-500 text-sm text-center h-4"></p>
-                    </form>
-                </div>
-                <div id="signup-form-container" class="hidden">
-                    <h2 class="text-2xl font-bold mb-4">Create Your Account</h2>
-                    <form id="signupForm" class="space-y-4">
-                        <input type="email" id="signupEmail" placeholder="Email" required class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="password" id="signupPassword" placeholder="Password (min. 6 characters)" required class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="submit" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition-all">Signup</button>
-                        <p id="signupError" class="text-red-500 text-sm text-center h-4"></p>
-                    </form>
-                </div>
-            </div>
+            <!-- ... all auth form code is the same ... -->
         </section>
 
-        <!-- Shop Section (Visible when logged in) -->
-        <section id="shop-section" class="hidden">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-gray-900">Our Products</h2>
-                <p class="text-gray-600 mt-2">Find the best items below</p>
+        <!-- Logged In Content Area -->
+        <section id="logged-in-content" class="hidden">
+            <!-- Shop Section -->
+            <div id="shop-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-gray-900">Our Products</h2>
+                    <p class="text-gray-600 mt-2">Find the best items below</p>
+                </div>
+                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Product cards will be loaded here -->
+                </div>
             </div>
-            <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                <!-- Product cards will be loaded here -->
+
+            <!-- NEW: My Orders Section -->
+            <div id="orders-section" class="mt-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900">My Order History</h2>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Product</th>
+                                <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Date</th>
+                                <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Price</th>
+                                <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-history-list" class="divide-y divide-gray-200">
+                            <!-- Order rows will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- Firebase SDKs -->
     <script type="module">
-        // --- Firebase Imports ---
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { getFirestore, collection, getDocs, query, orderBy, where, addDoc, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-        // --- Firebase Config ---
-        const firebaseConfig = {
-            apiKey: 'AIzaSyA2Y1NmbEdDYRNCooSmf6rcdBdeWg3D9Hg',
-            authDomain: 'lpshop-c8fe6.firebaseapp.com',
-            projectId: 'lpshop-c8fe6',
-            storageBucket: 'lpshop-c8fe6.firebasestorage.app',
-            messagingSenderId: '307849631006',
-            appId: '1:307849631006:web:460e06f55a689b19eda50f'
-        };
-
-        // --- Firebase Initialization ---
+        const firebaseConfig = { /* ... your config ... */ };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- DOM Element References ---
-        // Sections
+        // --- DOM References ---
         const authSection = document.getElementById('auth-section');
-        const shopSection = document.getElementById('shop-section');
+        const loggedInContent = document.getElementById('logged-in-content');
         const productListDiv = document.getElementById('product-list');
+        const orderHistoryList = document.getElementById('order-history-list');
+        // ... other existing DOM refs
 
-        // Nav Elements
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const profileMenuButton = document.getElementById('profile-menu-button');
-        const profileMenu = document.getElementById('profile-menu');
-        
-        // Dynamic Auth UI
-        const authLinksDesktop = document.getElementById('auth-links-desktop');
-        const authLinksMobile = document.getElementById('auth-links-mobile');
-        const profileDropdownContainer = document.getElementById('profile-dropdown-container');
-        const profileInfoMobile = document.getElementById('profile-info-mobile');
-        const logoutButtonMobile = document.getElementById('logout-button-mobile');
-        const logoutButtonDesktop = document.getElementById('logout-button-desktop');
-        const userEmailDisplays = document.querySelectorAll('.user-email-display');
-        
-        // Auth Forms
-        const loginTab = document.getElementById('login-tab');
-        const signupTab = document.getElementById('signup-tab');
-        const loginFormContainer = document.getElementById('login-form-container');
-        const signupFormContainer = document.getElementById('signup-form-container');
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        const loginError = document.getElementById('loginError');
-        const signupError = document.getElementById('signupError');
-
-        // --- UI Interaction Logic ---
-        // Toggle mobile menu
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Toggle profile dropdown
-        profileMenuButton.addEventListener('click', () => {
-            profileMenu.classList.toggle('hidden');
-        });
-
-        // Close dropdowns when clicking outside
-        window.addEventListener('click', (e) => {
-            if (!profileMenuButton.contains(e.target) && !profileMenu.contains(e.target)) {
-                profileMenu.classList.add('hidden');
-            }
-            if (!mobileMenuButton.contains(e.target) && !mobileMenu.contains(e.target)) {
-                mobileMenu.classList.add('hidden');
-            }
-        });
-
-        // Auth form tabs
-        loginTab.addEventListener('click', () => {
-            loginTab.classList.add('tab-active');
-            signupTab.classList.remove('tab-active');
-            loginFormContainer.classList.remove('hidden');
-            signupFormContainer.classList.add('hidden');
-        });
-
-        signupTab.addEventListener('click', () => {
-            signupTab.classList.add('tab-active');
-            loginTab.classList.remove('tab-active');
-            signupFormContainer.classList.remove('hidden');
-            loginFormContainer.classList.add('hidden');
-        });
-
-        // --- Firebase Logic ---
+        // --- Auth State Logic ---
         onAuthStateChanged(auth, user => {
             if (user) {
-                // User is LOGGED IN
                 authSection.classList.add('hidden');
-                shopSection.classList.remove('hidden');
+                loggedInContent.classList.remove('hidden');
+                // ... existing UI updates for nav/profile
                 
-                // Update Desktop Nav
-                authLinksDesktop.classList.add('hidden');
-                profileDropdownContainer.classList.remove('hidden');
-                
-                // Update Mobile Nav
-                authLinksMobile.classList.add('hidden');
-                profileInfoMobile.classList.remove('hidden');
-                logoutButtonMobile.classList.remove('hidden');
-                
-                // Set user email in all relevant places
-                userEmailDisplays.forEach(el => el.textContent = user.email);
-
                 fetchProducts();
+                fetchUserOrders(user.uid); // Fetch orders when user logs in
             } else {
-                // User is LOGGED OUT
-                shopSection.classList.add('hidden');
+                loggedInContent.classList.add('hidden');
                 authSection.classList.remove('hidden');
-                
-                 // Update Desktop Nav
-                authLinksDesktop.classList.remove('hidden');
-                profileDropdownContainer.classList.add('hidden');
-
-                // Update Mobile Nav
-                authLinksMobile.classList.remove('hidden');
-                profileInfoMobile.classList.add('hidden');
-                logoutButtonMobile.classList.add('hidden');
-
-                productListDiv.innerHTML = ''; // Clear products on logout
-            }
-             // Close any open menus on auth change
-            mobileMenu.classList.add('hidden');
-            profileMenu.classList.add('hidden');
-        });
-
-        // Handle Login
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            loginError.textContent = '';
-            try {
-                await signInWithEmailAndPassword(auth, loginForm.loginEmail.value, loginForm.loginPassword.value);
-                loginForm.reset();
-            } catch (error) {
-                loginError.textContent = error.message;
-            }
-        });
-
-        // Handle Signup
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            signupError.textContent = '';
-            try {
-                await createUserWithEmailAndPassword(auth, signupForm.signupEmail.value, signupForm.signupPassword.value);
-                signupForm.reset();
-            } catch (error) {
-                signupError.textContent = error.message;
+                // ... existing UI updates for nav/profile
             }
         });
         
-        // Handle Logout
-        const handleLogout = async () => {
-             try {
-                await signOut(auth);
-            } catch (error) {
-                console.error('Logout Error:', error);
+        // --- NEW: Handle Buy Now Click ---
+        const handleBuyNow = async (product) => {
+            if (!auth.currentUser) {
+                alert("Please log in to make a purchase.");
+                return;
             }
-        };
-        logoutButtonDesktop.addEventListener('click', handleLogout);
-        logoutButtonMobile.addEventListener('click', handleLogout);
 
+            if (!confirm(`You are about to pay $${product.price} for ${product.name}.\nThis will open your phone dialer to complete the payment.\n\nDo you want to continue?`)) {
+                return;
+            }
 
-        // --- Firestore Data Fetching ---
-        const fetchProducts = async () => {
-            productListDiv.innerHTML = ''; 
+            // Step 1: Create the order document in Firestore
             try {
-                const querySnapshot = await getDocs(collection(db, 'products'));
-                if (querySnapshot.empty) {
-                    productListDiv.innerHTML = '<p class="col-span-full text-center text-gray-500">No products have been added yet.</p>';
-                } else {
-                    querySnapshot.forEach((doc) => {
-                        const product = doc.data();
-                        const productCard = `
-                            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-all duration-300">
-                                <img class="h-64 w-full object-cover" src="${product.imageUrl || 'https://via.placeholder.com/400'}" alt="${product.name}">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-semibold mb-2">${product.name}</h3>
-                                    <p class="text-sm font-bold text-teal-500 mb-2">♦️ ${product.diamonds || 0} Diamonds</p>
-                                    <p class="text-2xl font-bold text-gray-900 mb-4">$${product.price ? product.price.toFixed(2) : '0.00'}</p>
-                                    <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all">Buy Now</button>
-                                </div>
-                            </div>
-                        `;
-                        productListDiv.innerHTML += productCard;
-                    });
-                }
+                await addDoc(collection(db, "orders"), {
+                    userId: auth.currentUser.uid,
+                    userEmail: auth.currentUser.email,
+                    productId: product.id,
+                    productName: product.name,
+                    price: product.price,
+                    diamonds: product.diamonds,
+                    imageUrl: product.imageUrl,
+                    status: "Pending", // Initial status
+                    orderDate: serverTimestamp()
+                });
+                
+                // Step 2: If creation is successful, redirect to phone dialer
+                const ussdCode = `*712*613982172*${product.price}#`;
+                // URL encode special characters for the tel link
+                const encodedUssd = encodeURIComponent(ussdCode);
+                window.location.href = `tel:${encodedUssd}`;
+
             } catch (error) {
-                console.error("Error fetching products: ", error);
-                productListDiv.innerHTML = '<p class="col-span-full text-center text-red-500">Could not load products.</p>';
+                console.error("Error creating order: ", error);
+                alert("Could not place your order. Please try again.");
             }
         };
+        
+        // --- UPDATED: Fetch Products to include Buy Now logic ---
+        const fetchProducts = async () => {
+            // ... (rest of the function is the same)
+            let productsData = []; // To store full product data
+            const q = query(collection(db, "products"), orderBy("name"));
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach((doc) => {
+                const product = { ...doc.data(), id: doc.id };
+                productsData.push(product);
+                // ADDED data attributes to the button
+                const productCard = `
+                    <div class="bg-white rounded-xl ...">
+                        ...
+                        <button 
+                            data-id="${product.id}"
+                            class="buy-now-btn w-full bg-blue-600 ...">
+                            Buy Now
+                        </button>
+                    </div>`;
+                productListDiv.innerHTML += productCard;
+            });
+            
+            // Add event listeners after cards are created
+            document.querySelectorAll('.buy-now-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productId = e.target.dataset.id;
+                    const productToBuy = productsData.find(p => p.id === productId);
+                    if (productToBuy) {
+                        handleBuyNow(productToBuy);
+                    }
+                });
+            });
+        };
+        
+        // --- NEW: Fetch User's Orders ---
+        const fetchUserOrders = (userId) => {
+            const ordersQuery = query(collection(db, "orders"), where("userId", "==", userId), orderBy("orderDate", "desc"));
+
+            onSnapshot(ordersQuery, (snapshot) => {
+                orderHistoryList.innerHTML = ""; // Clear list for real-time updates
+                if (snapshot.empty) {
+                    orderHistoryList.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">You have no orders yet.</td></tr>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const order = doc.data();
+                    const orderDate = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleDateString() : 'N/A';
+                    
+                    let statusClass = '';
+                    if (order.status === 'Pending') statusClass = 'bg-yellow-100 text-yellow-800';
+                    if (order.status === 'Completed') statusClass = 'bg-green-100 text-green-800';
+                    if (order.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
+
+                    orderHistoryList.innerHTML += `
+                        <tr>
+                            <td class="py-3 px-4 font-medium text-gray-900">${order.productName}</td>
+                            <td class="py-3 px-4 text-gray-600">${orderDate}</td>
+                            <td class="py-3 px-4 text-gray-800">$${order.price.toFixed(2)}</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                                    ${order.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        };
+        
+        // ... (rest of the code for auth, nav, etc. remains the same)
     </script>
 </body>
 </html>

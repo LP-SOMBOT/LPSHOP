@@ -1,243 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LP SHOP Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .tab-active {
-            border-color: #4f46e5; /* indigo-600 */
-            color: #4f46e5;
-            background-color: #eef2ff;
-        }
-        /* Style for the modal backdrop */
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-    </style>
+    <!-- ... head content ... -->
 </head>
 <body class="bg-gray-100 font-sans">
-
-    <nav class="bg-indigo-700 p-4 text-white shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">LP SHOP Admin Panel</h1>
-            <button id="adminLogoutButton" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded hidden">Logout</button>
-        </div>
-    </nav>
-
+    <!-- ... nav ... -->
     <div class="container mx-auto p-6">
-        <!-- Login Section -->
-        <section id="admin-login-section" class="bg-white p-8 rounded-lg shadow-md mb-8 max-w-md mx-auto">
-            <!-- Login form remains the same -->
-             <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Admin Login</h2>
-            <form id="adminLoginForm" class="space-y-4">
-                <input type="email" id="adminLoginEmail" placeholder="Admin Email" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <input type="password" id="adminLoginPassword" placeholder="Admin Password" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button type="submit" class="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700 transition duration-300">Login</button>
-                <p id="adminLoginError" class="text-red-500 text-sm mt-2 text-center h-4"></p>
-            </form>
-        </section>
-
-        <!-- Main Admin Panel -->
+        <!-- ... login section ... -->
         <main id="admin-panel-content" class="hidden">
             <!-- Tabs -->
             <div class="mb-6 border-b border-gray-200">
                 <nav class="-mb-px flex space-x-4" aria-label="Tabs">
-                    <button id="products-tab" class="tab-active whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Product Management</button>
-                    <button id="users-tab" class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">User Management</button>
+                    <button id="products-tab" class="text-gray-500 ...">Product Management</button>
+                    <!-- NEW: Order Management Tab -->
+                    <button id="orders-tab" class="tab-active ...">Order Management</button>
+                    <button id="users-tab" class="text-gray-500 ...">User Management</button>
                 </nav>
             </div>
 
-            <!-- Product Management Section -->
-            <section id="product-management-section">
+            <!-- Product Management Section (initially hidden) -->
+            <section id="product-management-section" class="hidden">
+                <!-- ... all product management code ... -->
+            </section>
+            
+            <!-- NEW: Order Management Section -->
+            <section id="order-management-section">
                 <div class="bg-white p-8 rounded-lg shadow-md">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Add New Product</h2>
-                    <form id="addProductForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <!-- Add Product Form fields -->
-                        <div><label for="productName" class="block text-gray-700 text-sm font-bold mb-2">Product Name:</label><input type="text" id="productName" required class="w-full p-3 border border-gray-300 rounded-md"></div>
-                        <div><label for="productPrice" class="block text-gray-700 text-sm font-bold mb-2">Price ($):</label><input type="number" id="productPrice" step="0.01" required class="w-full p-3 border border-gray-300 rounded-md"></div>
-                        <div><label for="productDiamonds" class="block text-gray-700 text-sm font-bold mb-2">Diamonds:</label><input type="number" id="productDiamonds" required class="w-full p-3 border border-gray-300 rounded-md"></div>
-                        <div><label for="productImageUrl" class="block text-gray-700 text-sm font-bold mb-2">Image URL:</label><input type="url" id="productImageUrl" required class="w-full p-3 border border-gray-300 rounded-md"></div>
-                        <div class="md:col-span-2"><button type="submit" class="w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700">Add Product</button></div>
-                    </form>
-
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 mt-10">Product List</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Manage Customer Orders</h2>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white border">
                             <thead>
                                 <tr class="bg-gray-50">
-                                    <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-                                    <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Product Name</th>
-                                    <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                                    <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                                    <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                     <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="adminProductTableBody" class="divide-y divide-gray-200"></tbody>
+                            <tbody id="adminOrderTableBody" class="divide-y divide-gray-200"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
-            
-            <!-- User Management Section (Android Friendly) -->
+
+            <!-- User Management Section (initially hidden) -->
             <section id="user-management-section" class="hidden">
-                 <div class="bg-white p-8 rounded-lg shadow-md text-center">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Manage Users in the Console</h2>
-                    <p class="mb-6 text-gray-600 max-w-xl mx-auto">To securely manage users, please use the official Firebase Console.</p>
-                    <a href="https://console.firebase.google.com/project/lpshop-c8fe6/authentication/users" target="_blank" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700">Open Firebase User Console</a>
-                 </div>
+                <!-- ... user management code ... -->
             </section>
         </main>
     </div>
 
-    <!-- Edit Product Modal -->
-    <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6">
-            <h3 class="text-2xl font-bold mb-4">Edit Product</h3>
-            <form id="editProductForm">
-                <!-- Hidden input to store the product ID -->
-                <input type="hidden" id="editProductId">
-                
-                <div class="space-y-4">
-                    <div><label for="editProductName" class="block text-sm font-medium text-gray-700">Product Name</label><input type="text" id="editProductName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
-                    <div><label for="editProductPrice" class="block text-sm font-medium text-gray-700">Price ($)</label><input type="number" id="editProductPrice" step="0.01" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
-                    <div><label for="editProductDiamonds" class="block text-sm font-medium text-gray-700">Diamonds</label><input type="number" id="editProductDiamonds" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
-                    <div><label for="editProductImageUrl" class="block text-sm font-medium text-gray-700">Image URL</label><input type="url" id="editProductImageUrl" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
-                </div>
-                
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" id="cancel-edit-btn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">Cancel</button>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
+    <!-- ... Edit Product Modal ... -->
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+        import { getAuth, ... } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { getFirestore, ..., onSnapshot } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-        // Firebase config and initialization...
-        const firebaseConfig = { apiKey: 'AIzaSyA2Y1NmbEdDYRNCooSmf6rcdBdeWg3D9Hg', authDomain: 'lpshop-c8fe6.firebaseapp.com', projectId: 'lpshop-c8fe6', storageBucket: 'lpshop-c8fe6.firebasestorage.app', messagingSenderId: '307849631006', appId: '1:307849631006:web:460e06f55a689b19eda50f' };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // ... firebase config and init ...
         
-        // DOM Elements
-        const adminLoginSection = document.getElementById('admin-login-section');
-        const adminPanelContent = document.getElementById('admin-panel-content');
-        const adminLogoutButton = document.getElementById('adminLogoutButton');
-        const adminLoginForm = document.getElementById('adminLoginForm');
-        const adminProductTableBody = document.getElementById('adminProductTableBody');
+        // --- DOM Elements ---
+        const ordersTab = document.getElementById('orders-tab');
+        const orderManagementSection = document.getElementById('order-management-section');
+        const adminOrderTableBody = document.getElementById('adminOrderTableBody');
+        // ... other existing DOM refs
 
-        // Edit Modal DOM Elements
-        const editModal = document.getElementById('edit-modal');
-        const editProductForm = document.getElementById('editProductForm');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        // --- Tab Navigation Logic (UPDATED) ---
+        ordersTab.addEventListener('click', () => {
+            // ... hide other sections, show orders section, update tab styles
+            fetchAdminOrders();
+        });
+        // ... other tab clicks
         
-        // ... (login, auth, and tab logic remains the same)
-
-        // --- NEW: Edit Modal Functions ---
-        const openEditModal = (product) => {
-            editProductForm.editProductId.value = product.id;
-            editProductForm.editProductName.value = product.name;
-            editProductForm.editProductPrice.value = product.price;
-            editProductForm.editProductDiamonds.value = product.diamonds;
-            editProductForm.editProductImageUrl.value = product.imageUrl;
-            editModal.classList.remove('hidden');
-        };
-
-        const closeEditModal = () => {
-            editModal.classList.add('hidden');
-        };
-
-        // --- NEW: Event Listeners for Edit Modal ---
-        editProductForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const productId = editProductForm.editProductId.value;
-            const productRef = doc(db, "products", productId);
-
-            try {
-                await updateDoc(productRef, {
-                    name: editProductForm.editProductName.value,
-                    price: parseFloat(editProductForm.editProductPrice.value),
-                    diamonds: parseInt(editProductForm.editProductDiamonds.value),
-                    imageUrl: editProductForm.editProductImageUrl.value
-                });
-                alert('Product updated successfully!');
-                closeEditModal();
-            } catch (error) {
-                console.error("Error updating product: ", error);
-                alert("Failed to update product.");
+        // --- Auth Logic ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // ... existing admin check
+                if (isAdmin) {
+                    // ... show admin panel
+                    fetchAdminOrders(); // Fetch orders on initial login
+                }
             }
         });
-
-        cancelEditBtn.addEventListener('click', closeEditModal);
         
-        // --- Product Management ---
-        const fetchAdminProducts = () => {
-            const q = query(collection(db, 'products'), orderBy('name'));
-            onSnapshot(q, snapshot => {
-                let productsData = []; // Store data to find for editing
-                adminProductTableBody.innerHTML = '';
+        // --- NEW: Order Management Functions ---
+        const fetchAdminOrders = () => {
+            const ordersQuery = query(collection(db, "orders"), orderBy("orderDate", "desc"));
+            
+            onSnapshot(ordersQuery, (snapshot) => {
+                adminOrderTableBody.innerHTML = "";
                 snapshot.forEach(doc => {
-                    const product = { ...doc.data(), id: doc.id };
-                    productsData.push(product); // Add product to our temp array
+                    const order = { ...doc.data(), id: doc.id };
+                    const orderDate = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : 'N/A';
+                    
+                    let statusClass = '';
+                    if (order.status === 'Pending') statusClass = 'bg-yellow-100 text-yellow-800';
+                    if (order.status === 'Completed') statusClass = 'bg-green-100 text-green-800';
+                    if (order.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
 
-                    // ADDED "Edit" BUTTON
-                    adminProductTableBody.innerHTML += `
-                        <tr id="product-row-${product.id}">
-                            <td class="py-4 px-6"><img src="${product.imageUrl}" alt="${product.name}" class="h-12 w-12 object-cover rounded"></td>
-                            <td class="py-4 px-6 font-medium">${product.name}</td>
-                            <td class="py-4 px-6">$${product.price.toFixed(2)}</td>
-                            <td class="py-4 px-6 space-x-2">
-                                <button data-id="${product.id}" class="edit-product-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-sm">Edit</button>
-                                <button data-id="${product.id}" class="delete-product-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm">Delete</button>
+                    adminOrderTableBody.innerHTML += `
+                        <tr>
+                            <td class="py-4 px-6 text-sm text-gray-600">${orderDate}</td>
+                            <td class="py-4 px-6 text-sm font-medium text-gray-900">${order.userEmail}</td>
+                            <td class="py-4 px-6 text-sm text-gray-800">${order.productName}</td>
+                            <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${order.status}</span></td>
+                            <td class="py-4 px-6 text-sm space-x-2">
+                                ${order.status === 'Pending' ? `
+                                <button data-id="${order.id}" class="approve-order-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Approve</button>
+                                <button data-id="${order.id}" class="reject-order-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">Reject</button>
+                                ` : `<span>-</span>`}
                             </td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
-
-                // Attach event listeners after rows are created
-                attachTableButtonListeners(productsData);
             });
         };
 
-        const attachTableButtonListeners = (productsData) => {
-             adminProductTableBody.querySelectorAll('.delete-product-btn').forEach(button => {
-                button.onclick = (e) => {
-                    const id = e.target.dataset.id;
-                    if (confirm('Delete this product?')) {
-                        deleteDoc(doc(db, 'products', id));
-                    }
-                };
-            });
-
-            adminProductTableBody.querySelectorAll('.edit-product-btn').forEach(button => {
-                button.onclick = (e) => {
-                    const id = e.target.dataset.id;
-                    // Find the full product object from our array
-                    const productToEdit = productsData.find(p => p.id === id);
-                    if (productToEdit) {
-                        openEditModal(productToEdit);
-                    }
-                };
-            });
+        const handleOrderAction = async (orderId, newStatus) => {
+            if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) return;
+            
+            const orderRef = doc(db, "orders", orderId);
+            try {
+                await updateDoc(orderRef, { status: newStatus });
+                alert(`Order has been ${newStatus.toLowerCase()}.`);
+            } catch (error) {
+                console.error("Error updating order status: ", error);
+                alert("Failed to update order.");
+            }
         };
 
-        // --- ALL OTHER CODE REMAINS THE SAME ---
-        // Login, auth checks, tab switching, add product form submission, etc.
-        const adminLoginError = document.getElementById('adminLoginError');
-        const checkAdminStatus = async (user) => { if (!user) return false; const adminDoc = await getDoc(doc(db, 'admins', user.uid)); return adminDoc.exists(); };
-        onAuthStateChanged(auth, async (user) => { if (user) { const isAdmin = await checkAdminStatus(user); if (isAdmin) { adminLoginSection.classList.add('hidden'); adminPanelContent.classList.remove('hidden'); adminLogoutButton.classList.remove('hidden'); fetchAdminProducts(); } else { alert("Access Denied."); await signOut(auth); } } else { adminLoginSection.classList.remove('hidden'); adminPanelContent.classList.add('hidden'); adminLogoutButton.classList.add('hidden'); } });
-        adminLoginForm.addEventListener('submit', async (e) => { e.preventDefault(); adminLoginError.textContent = ''; try { const userCredential = await signInWithEmailAndPassword(auth, adminLoginForm.adminLoginEmail.value, adminLoginForm.adminLoginPassword.value); const isAdmin = await checkAdminStatus(userCredential.user); if (!isAdmin) { adminLoginError.textContent = "Access Denied: You do not have admin privileges."; await signOut(auth); } } catch (error) { adminLoginError.textContent = error.message; } });
-        adminLogoutButton.addEventListener('click', () => signOut(auth));
-        const productsTab = document.getElementById('products-tab'); const usersTab = document.getElementById('users-tab'); const productManagementSection = document.getElementById('product-management-section'); const userManagementSection = document.getElementById('user-management-section');
-        productsTab.onclick = () => { productManagementSection.classList.remove('hidden'); userManagementSection.classList.add('hidden'); productsTab.classList.add('tab-active'); usersTab.classList.remove('tab-active'); };
-        usersTab.onclick = () => { userManagementSection.classList.remove('hidden'); productManagementSection.classList.add('hidden'); usersTab.classList.add('tab-active'); productsTab.classList.remove('tab-active'); };
-        const addProductForm = document.getElementById('addProductForm');
-        addProductForm.addEventListener('submit', async e => { e.preventDefault(); await addDoc(collection(db, 'products'), { name: addProductForm.productName.value, price: parseFloat(addProductForm.productPrice.value), diamonds: parseInt(addProductForm.productDiamonds.value), imageUrl: addProductForm.productImageUrl.value }); addProductForm.reset(); });
+        // Event delegation for approve/reject buttons
+        adminOrderTableBody.addEventListener('click', (e) => {
+            const target = e.target;
+            const orderId = target.dataset.id;
+            
+            if (target.classList.contains('approve-order-btn')) {
+                handleOrderAction(orderId, 'Completed');
+            }
+            if (target.classList.contains('reject-order-btn')) {
+                handleOrderAction(orderId, 'Rejected');
+            }
+        });
+        
+        // ... (rest of the admin panel code remains the same)
     </script>
 </body>
-</html>
+</html>```

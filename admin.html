@@ -42,87 +42,95 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        const adminLoginSection = document.getElementById('admin-login-section');
-        const adminPanelContent = document.getElementById('admin-panel-content');
-        const adminLogoutButton = document.getElementById('adminLogoutButton');
-        const adminLoginForm = document.getElementById('adminLoginForm');
-        const adminLoginError = document.getElementById('adminLoginError');
-        const adminProductTableBody = document.getElementById('adminProductTableBody');
-        const adminOrderTableBody = document.getElementById('adminOrderTableBody');
-        const editModal = document.getElementById('edit-modal');
-        const editProductForm = document.getElementById('editProductForm');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const addProductForm = document.getElementById('addProductForm');
+        const UI = {
+            loginSection: document.getElementById('admin-login-section'), panelContent: document.getElementById('admin-panel-content'),
+            logoutButton: document.getElementById('adminLogoutButton'), loginForm: document.getElementById('adminLoginForm'),
+            loginError: document.getElementById('adminLoginError'), productTableBody: document.getElementById('adminProductTableBody'),
+            orderTableBody: document.getElementById('adminOrderTableBody'), editModal: document.getElementById('edit-modal'),
+            editForm: document.getElementById('editProductForm'), cancelEditBtn: document.getElementById('cancel-edit-btn'),
+            addForm: document.getElementById('addProductForm'), tabsContainer: document.querySelector('nav[aria-label="Tabs"]'),
+            tabSections: { 'orders-tab': document.getElementById('order-management-section'), 'products-tab': document.getElementById('product-management-section'), 'users-tab': document.getElementById('user-management-section') }
+        };
         
         let productsData = [];
+        let unsubOrders = null;
+        let unsubProducts = null;
 
         const checkAdminStatus = async (user) => { if (!user) return false; const adminDoc = await getDoc(doc(db, 'admins', user.uid)); return adminDoc.exists(); };
 
         onAuthStateChanged(auth, async (user) => {
             if (user && await checkAdminStatus(user)) {
-                adminLoginSection.classList.add('hidden'); adminPanelContent.classList.remove('hidden');
-                adminLogoutButton.classList.remove('hidden');
+                UI.loginSection.classList.add('hidden'); UI.panelContent.classList.remove('hidden'); UI.logoutButton.classList.remove('hidden');
                 fetchAdminOrders(); fetchAdminProducts();
             } else {
                 if (user) { await signOut(auth); alert("Access Denied. You are not an admin."); }
-                adminLoginSection.classList.remove('hidden'); adminPanelContent.classList.add('hidden');
-                adminLogoutButton.classList.add('hidden');
+                UI.loginSection.classList.remove('hidden'); UI.panelContent.classList.add('hidden'); UI.logoutButton.classList.add('hidden');
+                if (unsubOrders) unsubOrders(); if (unsubProducts) unsubProducts();
             }
         });
 
-        const tabs = { 'orders-tab': 'order-management-section', 'products-tab': 'product-management-section', 'users-tab': 'user-management-section' };
-        document.querySelector('nav[aria-label="Tabs"]').addEventListener('click', (e) => {
+        UI.tabsContainer.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') {
-                document.querySelectorAll('nav[aria-label="Tabs"] button').forEach(b => b.classList.remove('tab-active'));
+                UI.tabsContainer.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
                 e.target.classList.add('tab-active');
-                Object.values(tabs).forEach(id => document.getElementById(id).classList.add('hidden'));
-                document.getElementById(tabs[e.target.id]).classList.remove('hidden');
+                Object.values(UI.tabSections).forEach(section => section.classList.add('hidden'));
+                UI.tabSections[e.target.id].classList.remove('hidden');
             }
         });
 
         const fetchAdminOrders = () => {
+            if (unsubOrders) unsubOrders();
             const q = query(collection(db, "orders"), orderBy("orderDate", "desc"));
-            onSnapshot(q, snapshot => {
-                adminOrderTableBody.innerHTML = "";
-                if (snapshot.empty) { adminOrderTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No orders yet.</td></tr>'; return; }
+            unsubOrders = onSnapshot(q, snapshot => {
+                UI.orderTableBody.innerHTML = "";
+                if (snapshot.empty) { UI.orderTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No orders yet.</td></tr>'; return; }
                 snapshot.forEach(doc => {
                     const order = { ...doc.data(), id: doc.id };
                     const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : '...';
                     let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || '';
-                    adminOrderTableBody.innerHTML += `<tr class="text-sm"><td class="p-4">${date}</td><td class="p-4 font-medium">${order.userEmail}</td><td class="p-4">${order.productName}</td><td class="p-4"><span class="px-2 py-1 rounded-full ${s}">${order.status}</span></td><td class="p-4 space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`;
+                    UI.orderTableBody.innerHTML += `<tr class="text-sm"><td class="p-4">${date}</td><td class="p-4 font-medium">${order.userEmail}</td><td class="p-4">${order.productName}</td><td class="p-4"><span class="px-2 py-1 rounded-full ${s}">${order.status}</span></td><td class="p-4 space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`;
                 });
             });
         };
         
         const handleOrderAction = async (id, status) => { if (confirm(`Set order to ${status}?`)) await updateDoc(doc(db, "orders", id), { status }); };
-        adminOrderTableBody.addEventListener('click', e => {
+        UI.orderTableBody.addEventListener('click', e => {
             const { classList, dataset } = e.target;
             if (classList.contains('approve-order-btn')) handleOrderAction(dataset.id, 'Completed');
             if (classList.contains('reject-order-btn')) handleOrderAction(dataset.id, 'Rejected');
         });
 
         const fetchAdminProducts = () => {
+            if (unsubProducts) unsubProducts();
             const q = query(collection(db, 'products'), orderBy('name'));
-            onSnapshot(q, snapshot => {
-                productsData = []; adminProductTableBody.innerHTML = '';
+            unsubProducts = onSnapshot(q, snapshot => {
+                productsData = []; UI.productTableBody.innerHTML = '';
                 snapshot.forEach(doc => {
                     const p = { ...doc.data(), id: doc.id }; productsData.push(p);
-                    adminProductTableBody.innerHTML += `<tr class="text-sm"><td class="p-4"><img src="${p.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${p.name}</td><td class="p-4">$${p.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${p.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${p.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`;
+                    UI.productTableBody.innerHTML += `<tr class="text-sm"><td class="p-4"><img src="${p.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${p.name}</td><td class="p-4">$${p.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${p.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${p.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`;
                 });
             });
         };
         
-        adminProductTableBody.addEventListener('click', e => {
+        UI.productTableBody.addEventListener('click', e => {
             const { classList, dataset } = e.target;
             if (classList.contains('delete-product-btn')) { if (confirm('Delete?')) deleteDoc(doc(db, 'products', dataset.id)); }
-            if (classList.contains('edit-product-btn')) { const p = productsData.find(prod => prod.id === dataset.id); if (p) { editProductForm.editProductId.value = p.id; editProductForm.editProductName.value = p.name; editProductForm.editProductPrice.value = p.price; editProductForm.editProductDiamonds.value = p.diamonds; editProductForm.editProductImageUrl.value = p.imageUrl; editProductForm.editProductDescription.value = p.description || ''; editModal.classList.remove('hidden'); } }
+            if (classList.contains('edit-product-btn')) {
+                const p = productsData.find(prod => prod.id === dataset.id);
+                if (p) {
+                    UI.editForm.editProductId.value = p.id; UI.editForm.editProductName.value = p.name;
+                    UI.editForm.editProductPrice.value = p.price; UI.editForm.editProductDiamonds.value = p.diamonds;
+                    UI.editForm.editProductImageUrl.value = p.imageUrl; UI.editForm.editProductDescription.value = p.description || '';
+                    UI.editModal.classList.remove('hidden');
+                }
+            }
         });
 
-        editProductForm.addEventListener('submit', async e => { e.preventDefault(); await updateDoc(doc(db, "products", editProductForm.editProductId.value), { name: editProductForm.editProductName.value, price: parseFloat(editProductForm.editProductPrice.value), diamonds: parseInt(editProductForm.editProductDiamonds.value), imageUrl: editProductForm.editProductImageUrl.value, description: editProductForm.editProductDescription.value }); editModal.classList.add('hidden'); });
-        addProductForm.addEventListener('submit', async e => { e.preventDefault(); await addDoc(collection(db, 'products'), { name: addProductForm.productName.value, price: parseFloat(addProductForm.productPrice.value), diamonds: parseInt(addProductForm.productDiamonds.value), imageUrl: addProductForm.productImageUrl.value, description: addProductForm.productDescription.value }); addProductForm.reset(); });
-        adminLoginForm.addEventListener('submit', async e => { e.preventDefault(); adminLoginError.textContent = ''; try { const userCred = await signInWithEmailAndPassword(auth, adminLoginForm.adminLoginEmail.value, adminLoginForm.adminLoginPassword.value); if (!await checkAdminStatus(userCred.user)) { adminLoginError.textContent = 'Access Denied.'; signOut(auth); }} catch (err) { adminLoginError.textContent = 'Login failed.'; } });
-        cancelEditBtn.addEventListener('click', () => editModal.classList.add('hidden'));
-        adminLogoutButton.addEventListener('click', () => signOut(auth));
+        UI.editForm.addEventListener('submit', async e => { e.preventDefault(); await updateDoc(doc(db, "products", UI.editForm.editProductId.value), { name: UI.editForm.editProductName.value, price: parseFloat(UI.editForm.editProductPrice.value), diamonds: parseInt(UI.editForm.editProductDiamonds.value), imageUrl: UI.editForm.editProductImageUrl.value, description: UI.editForm.editProductDescription.value }); UI.editModal.classList.add('hidden'); });
+        UI.addForm.addEventListener('submit', async e => { e.preventDefault(); await addDoc(collection(db, 'products'), { name: UI.addForm.productName.value, price: parseFloat(UI.addForm.productPrice.value), diamonds: parseInt(UI.addForm.productDiamonds.value), imageUrl: UI.addForm.productImageUrl.value, description: UI.addForm.productDescription.value }); UI.addForm.reset(); });
+        UI.loginForm.addEventListener('submit', async e => { e.preventDefault(); UI.loginError.textContent = ''; try { await signInWithEmailAndPassword(auth, UI.loginForm.adminLoginEmail.value, UI.loginForm.adminLoginPassword.value); } catch (err) { UI.loginError.textContent = 'Login failed.'; } });
+        UI.cancelEditBtn.addEventListener('click', () => UI.editModal.classList.add('hidden'));
+        UI.logoutButton.addEventListener('click', () => signOut(auth));
     </script>
 </body>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           </html>
+    </html>

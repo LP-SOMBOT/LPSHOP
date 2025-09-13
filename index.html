@@ -3,143 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LP SHOP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>ShoppingApp</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Embedded CSS -->
     <style>
-        .tab-active { border-color: #3b82f6; color: #3b82f6; font-weight: 600; }
-        .modal-backdrop { background-color: rgba(0, 0, 0, 0.6); }
-        .modal-content { transition: all 0.3s ease-out; }
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --light-grey: #f4f4f4;
+            --dark-grey: #333;
+            --text-color: #555;
+            --white-color: #ffffff;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --font-family: 'Poppins', sans-serif;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-family); background-color: var(--light-grey); color: var(--text-color); padding-top: 60px; padding-bottom: 60px; }
+
+        header { position: fixed; top: 0; left: 0; width: 100%; background: var(--white-color); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; height: 60px; box-shadow: var(--box-shadow); z-index: 1000; }
+        header .logo { font-weight: 700; font-size: 1.5rem; color: var(--primary-color); }
+        header .search-icon { font-size: 1.2rem; color: var(--dark-grey); text-decoration: none; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white-color); display: flex; justify-content: space-around; height: 60px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; }
+        .bottom-nav a { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; color: var(--dark-grey); font-size: 0.7rem; position: relative; transition: color 0.3s; }
+        .bottom-nav a.active { color: var(--primary-color); }
+        .bottom-nav a i { font-size: 1.4rem; margin-bottom: 4px; }
+        .badge { position: absolute; top: 5px; right: calc(50% - 25px); background-color: var(--danger-color); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; transform: translateX(15px); }
+
+        main { padding: 1rem; }
+        .page { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .slider { width: 100%; height: 200px; overflow: hidden; border-radius: var(--border-radius); margin-bottom: 1.5rem; position: relative; background: #eee; }
+        .slider img { width: 100%; height: 100%; object-fit: cover; }
+
+        .category-bubbles { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 1rem; scrollbar-width: none; }
+        .category-bubbles::-webkit-scrollbar { display: none; }
+        .category-bubble { padding: 8px 16px; border-radius: 20px; background: var(--white-color); font-size: 0.9rem; cursor: pointer; border: 1px solid #ddd; white-space: nowrap; }
+        .category-bubble.active { background: var(--primary-color); color: var(--white-color); border-color: var(--primary-color); }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+        .product-card { background: var(--white-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow); overflow: hidden; display: flex; flex-direction: column; }
+        .product-card img { width: 100%; height: 150px; object-fit: cover; cursor: pointer; }
+        .product-info { padding: 0.8rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-info h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+        .product-info .price { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); }
+        .product-actions { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 0.5rem; }
+        .product-actions .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color); }
+        
+        #search-page .search-bar { width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #ddd; border-radius: var(--border-radius); margin-bottom: 1rem; }
+        
+        .list-item { display: flex; align-items: center; background: var(--white-color); padding: 1rem; border-radius: var(--border-radius); margin-bottom: 1rem; box-shadow: var(--box-shadow); }
+        .list-item img { width: 80px; height: 80px; object-fit: cover; border-radius: var(--border-radius); margin-right: 1rem; }
+        .item-details { flex-grow: 1; }
+        .item-actions { display: flex; flex-direction: column; align-items: flex-end; }
+        .quantity-controls { display: flex; align-items: center; margin-bottom: 0.5rem; }
+        .quantity-controls button { width: 30px; height: 30px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; }
+        .quantity-controls span { padding: 0 10px; }
+        .total-section { margin-top: 1rem; padding: 1.5rem; background: var(--white-color); border-radius: var(--border-radius); text-align: right; box-shadow: var(--box-shadow); }
+        .total-section h3 { margin: 0; font-size: 1.2rem; }
+
+        /* My Orders Page Styling */
+        .order-card {
+            background-color: var(--white-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-grey);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .order-id { font-size: 0.9rem; color: var(--text-color); }
+        .order-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--white-color);
+        }
+        .status-pending { background-color: var(--warning-color); }
+        .status-processing { background-color: var(--primary-color); }
+        .status-completed { background-color: var(--secondary-color); }
+        .status-cancelled { background-color: var(--danger-color); }
+        .order-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .order-total { font-size: 1.1rem; font-weight: 600; color: var(--dark-grey); }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background-color: #fefefe; padding: 20px; border-radius: var(--border-radius); width: 90%; max-width: 500px; position: relative; animation: slideIn 0.3s; }
+        @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-family: var(--font-family); }
+        .btn { display: inline-block; width: 100%; padding: 12px; background: var(--primary-color); color: var(--white-color); border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; text-align: center; text-decoration: none; }
+        .toggle-form { text-align: center; margin-top: 1rem; cursor: pointer; color: var(--primary-color); }
+        .error-message { color: var(--danger-color); margin-top: 1rem; text-align: center; display: none; }
+
+        #menu-modal .modal-content { padding: 0; overflow: hidden; }
+        .menu-list { list-style: none; }
+        .menu-list a, .menu-list button { display: block; width: 100%; padding: 15px 20px; text-decoration: none; color: var(--text-color); border-bottom: 1px solid var(--light-grey); background: none; border-left: none; border-right: none; border-top: none; text-align: left; font-size: 1rem; font-family: var(--font-family); cursor: pointer; }
+        .menu-list a:last-child, .menu-list button:last-child { border-bottom: none; }
+        .menu-list i { margin-right: 10px; width: 20px; text-align: center; color: var(--primary-color); }
+        .empty-state { text-align: center; padding: 2rem; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
 
-    <audio id="background-music" loop><source src="https://cdn.pixabay.com/download/audio/2022/11/23/audio_752fa94121.mp3" type="audio/mpeg"></audio>
+    <header>
+        <h1 class="logo">ShoppingApp</h1>
+        <a href="#search" class="nav-link search-icon"><i class="fas fa-search"></i></a>
+    </header>
 
-    <nav class="bg-white shadow-md sticky top-0 z-40">
-        <div class="container mx-auto px-4"><div class="flex items-center justify-between h-16">
-            <a href="#" class="text-2xl font-bold text-blue-600">LP SHOP</a>
-            <div class="hidden md:flex items-center space-x-4">
-                <a href="#shop-section" class="text-gray-600 hover:text-blue-600 px-3 py-2">Shop</a>
-                <div id="auth-links-desktop" class="flex items-center space-x-2"><a href="#auth-section" class="text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-md">Login</a><a href="#auth-section" class="bg-blue-600 text-white px-4 py-2 rounded-md">Signup</a></div>
-                <div id="profile-dropdown-container" class="relative hidden">
-                    <button id="profile-menu-button" class="bg-gray-200 rounded-full h-10 w-10 flex items-center justify-center"><svg class="h-6 w-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg></button>
-                    <div id="profile-menu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                        <div class="py-1"><div class="px-4 py-2 border-b"><p class="text-sm text-gray-500">Signed in as</p><p class="text-sm font-medium text-gray-900 truncate user-email-display"></p></div><a href="#" id="logout-button-desktop" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a></div>
-                    </div>
-                </div>
-            </div>
-            <div class="md:hidden"><button id="mobile-menu-button" class="text-gray-600 p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button></div>
-        </div></div>
-        <div id="mobile-menu" class="md:hidden hidden px-2 pt-2 pb-4 space-y-1">
-            <a href="#shop-section" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700">Shop</a>
-            <div id="auth-links-mobile"><a href="#auth-section" class="block bg-blue-500 text-white text-center mt-2 px-4 py-2 rounded-md">Login / Signup</a></div>
-            <div id="profile-info-mobile" class="hidden border-t pt-4 mt-4"><p class="px-3 text-sm text-gray-500">Signed in as</p><p class="px-3 font-medium user-email-display"></p><a href="#" id="logout-button-mobile" class="block mt-2 px-3 py-2 rounded-md text-base font-medium text-gray-700">Sign out</a></div>
-        </div>
-    </nav>
-
-    <main class="container mx-auto p-4 mt-8 min-h-screen">
-        <section id="auth-section" class="max-w-md mx-auto">
-            <div class="bg-white p-8 rounded-xl shadow-lg">
-                <div class="mb-6 border-b"><nav class="-mb-px flex space-x-6"><button id="login-tab" class="py-4 px-1 border-b-2 tab-active">Login</button><button id="signup-tab" class="py-4 px-1 border-b-2 border-transparent text-gray-500">Signup</button></nav></div>
-                <div id="login-form-container">
-                    <h2 class="text-2xl font-bold mb-4">Login</h2><form id="loginForm" class="space-y-4"><input name="email" type="email" placeholder="Email" required class="w-full p-3 bg-gray-100 rounded-lg"><input name="password" type="password" placeholder="Password" required class="w-full p-3 bg-gray-100 rounded-lg"><button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold">Login</button></form>
-                    <div class="text-center mt-4"><a href="#" id="forgot-password-link" class="text-sm text-blue-600 hover:underline">Forgot Password?</a></div>
-                </div>
-                <div id="signup-form-container" class="hidden">
-                    <h2 class="text-2xl font-bold mb-4">Create Account</h2><form id="signupForm" class="space-y-4"><input name="email" type="email" placeholder="Email" required class="w-full p-3 bg-gray-100 rounded-lg"><input name="password" type="password" placeholder="Password (min. 6 chars)" required class="w-full p-3 bg-gray-100 rounded-lg"><button type="submit" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold">Signup</button></form>
-                </div>
-            </div>
-        </section>
-
-        <section id="logged-in-content" class="hidden">
-            <div id="shop-section">
-                <div class="text-center mb-8"><h2 class="text-4xl font-bold">Our Products</h2></div>
-                <div class="mb-8 max-w-lg mx-auto"><input type="text" id="search-bar" placeholder="🔍 Search for a product..." class="w-full p-3 border rounded-lg shadow-sm"></div>
-                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
-            </div>
-            <div id="orders-section" class="mt-20">
-                <div class="text-center mb-12"><h2 class="text-3xl font-bold">My Order History</h2></div>
-                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
-                    <table class="min-w-full"><thead><tr><th>Product</th><th>Date</th><th>Price</th><th>Status</th></tr></thead><tbody id="order-history-list" class="divide-y"></tbody></table>
-                </div>
-            </div>
-        </section>
+    <main id="app-container">
+        <section id="home" class="page"></section>
+        <section id="search" class="page"></section>
+        <section id="cart" class="page"></section>
+        <section id="orders" class="page"></section>
+        <section id="profile" class="page"></section>
+        <section id="about" class="page"></section>
+        <section id="contact" class="page"></section>
     </main>
 
-    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop"><div id="modal-content" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 text-center transform modal-content scale-95 opacity-0"><h3 id="modal-title" class="text-2xl font-bold mb-4"></h3><div id="modal-body" class="text-gray-600 mb-6"></div><div id="modal-footer" class="flex justify-center space-x-4"></div></div></div>
-
-    <button id="music-toggle-btn" class="fixed bottom-6 left-6 bg-blue-500 text-white p-4 rounded-full shadow-lg"><svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg><svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0L19 5.858a1 1 0 11-1.414 1.414L16 5.414l-1.929 1.929a1 1 0 01-1.414-1.414l1.929-1.93zM16 9.414l1.929-1.929a1 1 0 011.414 1.414L17.414 10.83l1.929 1.929a1 1 0 01-1.414 1.414L16 12.242l-1.929 1.929a1 1 0 01-1.414-1.414L14.586 10.83l-1.929-1.929a1 1 0 011.414-1.414L16 9.414z" clip-rule="evenodd" /></svg></button>
-    <a href="https://wa.me/16042397558" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163...Z"/></svg></a>
-    <footer class="bg-white mt-16 py-6 border-t"><div class="container mx-auto text-center text-gray-600"><p>&copy; 2024 LP SHOP. All rights reserved.</p></div></footer>
+    <nav class="bottom-nav">
+        <a href="#home" class="nav-link" data-page="home"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="#orders" class="nav-link" data-page="orders"><i class="fas fa-receipt"></i><span>My Orders</span></a>
+        <a href="#cart" class="nav-link" data-page="cart"><i class="fas fa-shopping-cart"></i><span id="cart-badge" class="badge">0</span><span>Cart</span></a>
+        <a href="#" class="nav-link" id="menu-btn"><i class="fas fa-bars"></i><span>Menu</span></a>
+    </nav>
+    
+    <div id="auth-modal" class="modal"></div>
+    <div id="product-detail-modal" class="modal"></div>
+    <div id="shipping-modal" class="modal"></div>
+    <div id="menu-modal" class="modal"></div>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, query, orderBy, where, addDoc, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, update, remove, onValue, push } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDhXWZay8NJHcmszfYtx_QZ7v_nxG3ufGw",
-          authDomain: "lpshop-2.firebaseapp.com",
-          projectId: "lpshop-2",
-          storageBucket: "lpshop-2.firebasestorage.app",
-          messagingSenderId: "1060044569045",
-          appId: "1:1060044569045:web:a7446d548160b822d2255c"
+            apiKey: "AIzaSyCytFv4Mzvur0xr0_hJwRXhO7TvdSZP7Fg",
+            authDomain: "lp-shop-63677.firebaseapp.com",
+            databaseURL: "https://lp-shop-63677-default-rtdb.firebaseio.com",
+            projectId: "lp-shop-63677",
+            storageBucket: "lp-shop-63677.appspot.com",
+            messagingSenderId: "695280150789",
+            appId: "1:695280150789:web:a31cbbf60e79eb82b4ef6c"
         };
+
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        const auth = getAuth();
+        const db = getDatabase();
 
-        const UI = {
-            authSection: document.getElementById('auth-section'), loggedInContent: document.getElementById('logged-in-content'),
-            productListDiv: document.getElementById('product-list'), orderHistoryList: document.getElementById('order-history-list'),
-            searchBar: document.getElementById('search-bar'), forgotPasswordLink: document.getElementById('forgot-password-link'),
-            modal: document.getElementById('modal'), modalContent: document.getElementById('modal-content'),
-            modalTitle: document.getElementById('modal-title'), modalBody: document.getElementById('modal-body'),
-            modalFooter: document.getElementById('modal-footer'), authLinksDesktop: document.getElementById('auth-links-desktop'),
-            authLinksMobile: document.getElementById('auth-links-mobile'), profileDropdownContainer: document.getElementById('profile-dropdown-container'),
-            profileInfoMobile: document.getElementById('profile-info-mobile'), profileMenuButton: document.getElementById('profile-menu-button'),
-            profileMenu: document.getElementById('profile-menu'), mobileMenuButton: document.getElementById('mobile-menu-button'),
-            mobileMenu: document.getElementById('mobile-menu'), logoutButtonDesktop: document.getElementById('logout-button-desktop'),
-            logoutButtonMobile: document.getElementById('logout-button-mobile'), userEmailDisplays: document.querySelectorAll('.user-email-display'),
-            loginTab: document.getElementById('login-tab'), signupTab: document.getElementById('signup-tab'),
-            loginFormContainer: document.getElementById('login-form-container'), signupFormContainer: document.getElementById('signup-form-container'),
-            loginForm: document.getElementById('loginForm'), signupForm: document.getElementById('signupForm'),
-            musicPlayer: document.getElementById('background-music'), musicToggleButton: document.getElementById('music-toggle-btn'),
-            playIcon: document.getElementById('play-icon'), muteIcon: document.getElementById('mute-icon')
+        let allProducts = [];
+        let currentUser = null;
+        let userCart = {};
+
+        const DOMElements = {
+            pages: document.querySelectorAll('.page'),
+            navLinks: document.querySelectorAll('.nav-link'),
+            appContainer: document.getElementById('app-container'),
+            cartBadge: document.getElementById('cart-badge'),
+            menuBtn: document.getElementById('menu-btn'),
+            authModal: document.getElementById('auth-modal'),
+            shippingModal: document.getElementById('shipping-modal'),
+            menuModal: document.getElementById('menu-modal'),
+        };
+
+        const navigateTo = (hash) => {
+            const pageId = hash ? hash.substring(1) : 'home';
+            DOMElements.pages.forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                renderPageContent(pageId);
+            }
+            DOMElements.navLinks.forEach(link => {
+                link.classList.toggle('active', link.dataset.page === pageId);
+            });
+        };
+
+        const setupRouting = () => {
+            window.addEventListener('hashchange', () => navigateTo(location.hash));
+            DOMElements.navLinks.forEach(link => {
+                if (link.id !== 'menu-btn') {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetHash = link.getAttribute('href');
+                        if (location.hash !== targetHash) {
+                            history.pushState(null, '', targetHash);
+                            navigateTo(targetHash);
+                        }
+                    });
+                }
+            });
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            if (user) {
+                await syncLocalDataToFirebase();
+                listenToFirebaseData();
+            } else {
+                userCart = getLocalData('cart');
+                updateBadges();
+            }
+            navigateTo(location.hash || '#home');
+        });
+
+        const handleLogout = async () => {
+            await signOut(auth);
+            closeModal('menu-modal');
+            navigateTo('#home');
+        };
+
+        const getLocalData = (key) => JSON.parse(localStorage.getItem(key)) || {};
+        const setLocalData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+
+        const syncLocalDataToFirebase = async () => {
+            if (!currentUser) return;
+            const localCart = getLocalData('cart');
+            if (Object.keys(localCart).length > 0) {
+                await update(ref(db, `users/${currentUser.uid}/cart`), localCart);
+                localStorage.removeItem('cart');
+            }
         };
         
-        let productsData = []; let unsubscribeOrders = null;
+        const listenToFirebaseData = () => {
+            if (!currentUser) return;
+            onValue(ref(db, `users/${currentUser.uid}/cart`), (snap) => {
+                userCart = snap.val() || {};
+                updateBadges();
+                if(document.getElementById('cart')?.classList.contains('active')) renderPageContent('cart');
+            });
+        };
 
-        const showModal = (title, body, buttons = []) => { UI.modalTitle.textContent = title; UI.modalBody.innerHTML = body; UI.modalFooter.innerHTML = ''; if (buttons.length === 0) buttons.push({ text: 'Close', class: 'bg-gray-500', action: hideModal }); buttons.forEach(btn => { const el = document.createElement('button'); el.textContent = btn.text; el.className = `text-white px-6 py-2 rounded-lg ${btn.class}`; el.onclick = btn.action; UI.modalFooter.appendChild(el); }); UI.modal.classList.remove('hidden'); setTimeout(() => UI.modalContent.classList.remove('scale-95', 'opacity-0'), 10); };
-        const hideModal = () => { UI.modalContent.classList.add('scale-95', 'opacity-0'); setTimeout(() => UI.modal.classList.add('hidden'), 300); };
-        const updateNavUI = (user) => { const isLoggedIn = !!user; UI.authSection.classList.toggle('hidden', isLoggedIn); UI.loggedInContent.classList.toggle('hidden', !isLoggedIn); UI.authLinksDesktop.classList.toggle('hidden', isLoggedIn); UI.authLinksMobile.classList.toggle('hidden', isLoggedIn); UI.profileDropdownContainer.classList.toggle('hidden', !isLoggedIn); UI.profileInfoMobile.classList.toggle('hidden', !isLoggedIn); if (isLoggedIn) UI.userEmailDisplays.forEach(el => el.textContent = user.email); };
+        const updateBadges = () => {
+            DOMElements.cartBadge.textContent = Object.keys(userCart).length;
+        };
 
-        onAuthStateChanged(auth, user => { updateNavUI(user); if (user) { fetchProducts(); fetchUserOrders(user.uid); } else { UI.productListDiv.innerHTML = ''; productsData = []; if (unsubscribeOrders) unsubscribeOrders(); } });
+        const renderPageContent = (pageId) => {
+            const page = document.getElementById(pageId);
+            if (!page) return;
+            switch(pageId) {
+                case 'home': renderHomePage(page); break;
+                case 'search': renderSearchPage(page); break;
+                case 'cart': renderCartPage(page); break;
+                case 'orders': renderOrdersPage(page); break;
+                case 'contact': renderContactPage(page); break;
+                case 'about': page.innerHTML = `<h2>About Us</h2><p>Welcome to ShoppingApp, your one-stop shop for amazing products!</p>`; break;
+                case 'profile': page.innerHTML = `<h2>My Profile</h2><p>Email: ${currentUser?.email || 'Not logged in'}</p>`; break;
+            }
+        };
 
-        const handleBuyNow = (productId) => { const product = productsData.find(p => p.id === productId); if (!product || !auth.currentUser) return; showModal('Confirm Purchase', `Pay <b>$${product.price.toFixed(2)}</b> for <b>${product.name}</b>?<br>This will open your phone dialer.`, [{ text: 'Cancel', class: 'bg-gray-500', action: hideModal }, { text: 'Proceed', class: 'bg-blue-600', action: async () => { hideModal(); try { await addDoc(collection(db, "orders"), { userId: auth.currentUser.uid, userEmail: auth.currentUser.email, productId: product.id, productName: product.name, price: product.price, diamonds: product.diamonds, imageUrl: product.imageUrl, status: "Pending", orderDate: serverTimestamp() }); window.location.href = `tel:${encodeURIComponent(`*712*613982172*${product.price}#`)}`; } catch (error) { showModal('Error', 'Could not place order.'); } } }] ); };
-        const showProductDetails = (productId) => { const product = productsData.find(p => p.id === productId); if (!product) return; showModal(product.name, `<img src="${product.imageUrl}" class="w-full h-64 object-cover rounded-lg mb-4"><p>${product.description || 'No details available.'}</p>`); };
+        const renderHomePage = async (page) => {
+            const sliderSnap = await get(ref(db, 'sliderImages'));
+            const sliderHTML = sliderSnap.exists() ? `<div class="slider"><img src="${Object.values(sliderSnap.val())[0].downloadURL}" alt="Promotion"></div>` : '<h3>No Slider Images Found</h3>';
+            const categories = [...new Set(allProducts.map(p => p.category))];
+            const categoriesHTML = `
+                <div class="category-bubbles">
+                    <div class="category-bubble active" data-category="all">All</div>
+                    ${categories.map(c => `<div class="category-bubble" data-category="${c}">${c}</div>`).join('')}
+                </div>`;
+            const productsHTML = allProducts.length > 0 ? allProducts.map(createProductCard).join('') : '<p>No products found. Check back later!</p>';
+            page.innerHTML = `
+                ${sliderHTML}
+                <h3>Categories</h3>
+                ${categoriesHTML}
+                <h3>Products</h3>
+                <div class="product-grid">${productsHTML}</div>
+            `;
+        };
 
-        UI.productListDiv.addEventListener('click', (e) => { const card = e.target.closest('.product-card'); if (!card) return; if (e.target.classList.contains('buy-now-btn')) handleBuyNow(card.dataset.id); else showProductDetails(card.dataset.id); });
-        UI.searchBar.addEventListener('keyup', () => { const term = UI.searchBar.value.toLowerCase(); document.querySelectorAll('.product-card').forEach(card => card.style.display = card.dataset.name.toLowerCase().includes(term) ? '' : 'none'); });
-
-        const fetchProducts = async () => { productsData = []; UI.productListDiv.innerHTML = `<p class="col-span-full text-center">Loading...</p>`; const q = query(collection(db, "products"), orderBy("name")); const snapshot = await getDocs(q); UI.productListDiv.innerHTML = ''; if(snapshot.empty) UI.productListDiv.innerHTML = `<p class="col-span-full text-center">No products found.</p>`; else snapshot.forEach(doc => { const p = { ...doc.data(), id: doc.id }; productsData.push(p); UI.productListDiv.innerHTML += `<div class="product-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-id="${p.id}" data-name="${p.name}"><img class="h-64 w-full object-cover pointer-events-none" src="${p.imageUrl}" alt="${p.name}"><div class="p-6 pointer-events-none"><h3 class="text-xl font-semibold">${p.name}</h3><p class="text-sm font-bold text-teal-500 my-2">♦️ ${p.diamonds || 0}</p><p class="text-2xl font-bold mb-4">$${p.price.toFixed(2)}</p></div><div class="p-4 pt-0"><button class="buy-now-btn w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">Buy Now</button></div></div>`; }); };
-        const fetchUserOrders = (userId) => { if (unsubscribeOrders) unsubscribeOrders(); const q = query(collection(db, "orders"), where("userId", "==", userId), orderBy("orderDate", "desc")); unsubscribeOrders = onSnapshot(q, (snapshot) => { UI.orderHistoryList.innerHTML = ""; if (snapshot.empty) { UI.orderHistoryList.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No orders yet.</td></tr>'; return; } snapshot.forEach(doc => { const order = doc.data(); const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleDateString() : '...'; let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || ''; UI.orderHistoryList.innerHTML += `<tr><td class="p-4 font-medium">${order.productName}</td><td class="p-4">${date}</td><td class="p-4">$${order.price.toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 text-xs rounded-full ${s}">${order.status}</span></td></tr>`; }); }, () => UI.orderHistoryList.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Error loading orders. A DB index is required.</td></tr>`); };
+        const renderSearchPage = (page) => {
+             page.innerHTML = `
+                <h2>Search</h2>
+                <input type="text" id="search-input" class="search-bar" placeholder="Search for products...">
+                <div class="product-grid" id="search-results">${allProducts.map(createProductCard).join('')}</div>
+             `;
+        };
         
-        const toggleMusic = () => { if (UI.musicPlayer.paused) { UI.musicPlayer.play().catch(() => {}); UI.playIcon.classList.add('hidden'); UI.muteIcon.classList.remove('hidden'); } else { UI.musicPlayer.pause(); UI.muteIcon.classList.add('hidden'); UI.playIcon.classList.remove('hidden'); } };
-        UI.musicToggleButton.addEventListener('click', toggleMusic);
+        const renderCartPage = (page) => {
+            if (Object.keys(userCart).length === 0) {
+                page.innerHTML = `<div class="empty-state"><h3>Your Cart is Empty</h3><p>Add some products to get started!</p></div>`;
+                return;
+            }
+            let total = 0;
+            const itemsHTML = Object.entries(userCart).map(([id, item]) => {
+                total += parseFloat(item.price) * item.quantity;
+                return createCartItem(id, item);
+            }).join('');
+            page.innerHTML = `
+                <h2>Shopping Cart</h2>
+                <div id="cart-items">${itemsHTML}</div>
+                <div class="total-section">
+                    <h3>Total: $${total.toFixed(2)}</h3>
+                    <button class="btn" id="checkout-btn">Proceed to Checkout</button>
+                </div>
+            `;
+        };
+        
+        const renderOrdersPage = (page) => {
+            if(!currentUser) {
+                page.innerHTML = `<div class="empty-state"><h3>Please log in to see your orders.</h3></div>`;
+                return;
+            }
+            page.innerHTML = `<h2>My Orders</h2><div id="orders-list">Loading...</div>`;
+            const ordersRef = ref(db, `orders/${currentUser.uid}`);
+            onValue(ordersRef, (snap) => {
+                const listEl = document.getElementById('orders-list');
+                if(!snap.exists()) {
+                    listEl.innerHTML = `<div class="empty-state"><h3>You have no past orders.</h3></div>`;
+                    return;
+                }
+                const orders = snap.val();
+                listEl.innerHTML = Object.values(orders).reverse().map(order => {
+                    const statusClass = `status-${order.status.toLowerCase()}`;
+                    return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <span class="order-id">Order: #${order.orderId.substring(1, 8)}</span>
+                            <span class="order-status ${statusClass}">${order.status}</span>
+                        </div>
+                        <div class="order-body">
+                            <span>${new Date(order.date).toLocaleDateString()}</span>
+                            <span class="order-total">$${order.totalAmount.toFixed(2)}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            });
+        };
 
-        UI.forgotPasswordLink.addEventListener('click', async () => { const email = prompt("Enter email for password reset link:"); if (email) { try { await sendPasswordResetEmail(auth, email); showModal('Success', 'Password reset link sent.'); } catch (err) { showModal('Error', err.message); }} });
-        UI.loginForm.addEventListener('submit', async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, e.target.elements.email.value, e.target.elements.password.value); } catch (err) { showModal('Login Failed', err.message); }});
-        UI.signupForm.addEventListener('submit', async e => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, e.target.elements.email.value, e.target.elements.password.value); } catch (err) { showModal('Signup Failed', err.message); }});
-        
-        UI.profileMenuButton.addEventListener('click', () => UI.profileMenu.classList.toggle('hidden'));
-        UI.mobileMenuButton.addEventListener('click', () => UI.mobileMenu.classList.toggle('hidden'));
-        UI.loginTab.addEventListener('click', () => { UI.signupFormContainer.classList.add('hidden'); UI.loginFormContainer.classList.remove('hidden'); UI.loginTab.classList.add('tab-active'); UI.signupTab.classList.remove('tab-active'); });
-        UI.signupTab.addEventListener('click', () => { UI.loginFormContainer.classList.add('hidden'); UI.signupFormContainer.classList.remove('hidden'); UI.signupTab.classList.add('tab-active'); UI.loginTab.classList.remove('tab-active'); });
-        
-        const handleLogout = () => signOut(auth);
-        UI.logoutButtonDesktop.addEventListener('click', handleLogout); UI.logoutButtonMobile.addEventListener('click', handleLogout);
-        UI.modal.addEventListener('click', (e) => { if(e.target === UI.modal) hideModal(); });
-    </script>
-</body>
-                                                                                                                                                                   </html>
+        const renderContactPage = (page) => {
+            page.innerHTML = `
+                <h2>Contact Us</h2>
+                <form id="contact-form">
+                    <div class="form-group"><label for="name">Name</label><input type="text" id="contact-name" required></div>
+                    <div class="form-group"><label for="email">Email</label><input type="email" id="contact-email" required></div>
+                    <div class="form-group"><label for

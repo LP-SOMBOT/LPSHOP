@@ -3,218 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LP SHOP</title>
+    <title>LP SHOP Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .tab-active { border-color: #3b82f6; color: #3b82f6; font-weight: 600; }
-        .modal-backdrop { background-color: rgba(0, 0, 0, 0.6); }
-        .modal-content { transition: all 0.3s ease-out; }
+        .tab-active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
-
-    <!-- NEW: Audio Player Element (hidden) -->
-    <audio id="background-music" loop>
-        <source src="https://cdn.pixabay.com/download/audio/2022/11/23/audio_752fa94121.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-
-    <!-- Navigation Bar -->
-    <nav class="bg-white shadow-md sticky top-0 z-40">
-        <!-- ... nav code is the same ... -->
-    </nav>
-
-    <main class="container mx-auto p-4 mt-8 min-h-screen">
-        <!-- ... all main content is the same ... -->
-    </main>
-
-    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop">
-        <!-- ... modal code is the same ... -->
+    <nav class="bg-indigo-700 p-4 text-white shadow-md"><div class="container mx-auto flex justify-between items-center"><h1 class="text-2xl font-bold">LP SHOP Admin Panel</h1><button id="adminLogoutButton" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded hidden">Logout</button></div></nav>
+    <div class="container mx-auto p-6">
+        <section id="admin-login-section" class="bg-white p-8 rounded-lg shadow-md mb-8 max-w-md mx-auto">
+             <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Admin Login</h2>
+            <form id="adminLoginForm" class="space-y-4"><input name="email" type="email" placeholder="Admin Email" required class="w-full p-3 border rounded-md"><input name="password" type="password" placeholder="Admin Password" required class="w-full p-3 border rounded-md"><button type="submit" class="w-full bg-indigo-600 text-white p-3 rounded-md">Login</button><p id="adminLoginError" class="text-red-500 text-sm mt-2 text-center h-4"></p></form>
+        </section>
+        <main id="admin-panel-content" class="hidden">
+            <div class="mb-6 border-b border-gray-200"><nav class="-mb-px flex space-x-4" aria-label="Tabs"><button id="orders-tab" class="tab-active py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Orders</button><button id="products-tab" class="text-gray-500 py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Products</button><button id="users-tab" class="text-gray-500 py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Users</button></nav></div>
+            <section id="order-management-section">
+                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-6">Manage Orders</h2><div class="overflow-x-auto"><table class="min-w-full"><thead><tr class="bg-gray-50"><th>Date</th><th>Customer</th><th>Product</th><th>Status</th><th>Actions</th></tr></thead><tbody id="adminOrderTableBody" class="divide-y"></tbody></table></div></div>
+            </section>
+            <section id="product-management-section" class="hidden">
+                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-6">Add Product</h2><form id="addProductForm" class="grid md:grid-cols-2 gap-4 mb-8"><div><label>Name</label><input type="text" name="name" required class="w-full p-3 border rounded-md"></div><div><label>Price ($)</label><input type="number" name="price" step="0.01" required class="w-full p-3 border rounded-md"></div><div><label>Diamonds</label><input type="number" name="diamonds" required class="w-full p-3 border rounded-md"></div><div><label>Image URL</label><input type="url" name="imageUrl" required class="w-full p-3 border rounded-md"></div><div class="md:col-span-2"><label>Description</label><textarea name="description" class="w-full p-3 border rounded-md" rows="3"></textarea></div><div class="md:col-span-2"><button type="submit" class="w-full bg-green-600 text-white p-3 rounded-md">Add Product</button></div></form><h2 class="text-2xl font-bold mt-10 mb-6">Product List</h2><div class="overflow-x-auto"><table class="min-w-full"><thead><tr class="bg-gray-50"><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody id="adminProductTableBody" class="divide-y"></tbody></table></div></div>
+            </section>
+            <section id="user-management-section" class="hidden">
+                 <div class="bg-white p-8 rounded-lg shadow-md text-center"><h2 class="text-2xl font-bold mb-4">Manage Users in Console</h2><p class="mb-6 text-gray-600">Securely manage users via the official Firebase Console.</p><a href="https://console.firebase.google.com/project/lpshop-c8fe6/authentication/users" target="_blank" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg">Open User Console</a></div>
+            </section>
+        </main>
     </div>
-
-    <!-- NEW: Music Toggle Button -->
-    <button id="music-toggle-btn" class="fixed bottom-6 left-6 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-transform hover:scale-110">
-        <!-- Play Icon (Visible by default) -->
-        <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
-        <!-- Mute Icon (Hidden by default) -->
-        <svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0L19 5.858a1 1 0 11-1.414 1.414L16 5.414l-1.929 1.929a1 1 0 01-1.414-1.414l1.929-1.93zM16 9.414l1.929-1.929a1 1 0 011.414 1.414L17.414 10.83l1.929 1.929a1 1 0 01-1.414 1.414L16 12.242l-1.929 1.929a1 1 0 01-1.414-1.414L14.586 10.83l-1.929-1.929a1 1 0 011.414-1.414L16 9.414z" clip-rule="evenodd" /></svg>
-    </button>
-
-    <a href="https://wa.me/16042397558" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-transform hover:scale-110">
-        <!-- ... WhatsApp icon SVG ... -->
-    </a>
-
-    <footer class="bg-white mt-16 py-6 border-t"><div class="container mx-auto text-center text-gray-600"><p>&copy; 2024 LP SHOP. All rights reserved.</p></div></footer>
+    <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop"><div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6"><h3 class="text-2xl font-bold mb-4">Edit Product</h3><form id="editProductForm"><input type="hidden" name="id"><div class="space-y-4"><div><label>Name</label><input type="text" name="name" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Price ($)</label><input type="number" name="price" step="0.01" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Diamonds</label><input type="number" name="diamonds" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Image URL</label><input type="url" name="imageUrl" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Description</label><textarea name="description" class="mt-1 w-full border rounded-md py-2 px-3" rows="3"></textarea></div></div><div class="mt-6 flex justify-end space-x-3"><button type="button" id="cancel-edit-btn" class="bg-gray-200 px-4 py-2 rounded-md">Cancel</button><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Save</button></div></form></div></div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-        // ... all other firebase imports are the same
-        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, query, orderBy, where, addDoc, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.14.1/firestore.js';
 
-        // ... firebase config and init are the same
         const firebaseConfig = { apiKey: 'AIzaSyA2Y1NmbEdDYRNCooSmf6rcdBdeWg3D9Hg', authDomain: 'lpshop-c8fe6.firebaseapp.com', projectId: 'lpshop-c8fe6', storageBucket: 'lpshop-c8fe6.firebasestorage.app', messagingSenderId: '307849631006', appId: '1:307849631006:web:460e06f55a689b19eda50f' };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
-        // --- All UI Elements ---
+        
         const UI = {
-            // ... all previous UI elements are the same
-            // NEW Music Player Elements
-            musicPlayer: document.getElementById('background-music'),
-            musicToggleButton: document.getElementById('music-toggle-btn'),
-            playIcon: document.getElementById('play-icon'),
-            muteIcon: document.getElementById('mute-icon')
+            loginSection: document.getElementById('admin-login-section'), panelContent: document.getElementById('admin-panel-content'),
+            logoutButton: document.getElementById('adminLogoutButton'), loginForm: document.getElementById('adminLoginForm'),
+            loginError: document.getElementById('adminLoginError'), productTableBody: document.getElementById('adminProductTableBody'),
+            orderTableBody: document.getElementById('adminOrderTableBody'), editModal: document.getElementById('edit-modal'),
+            editForm: document.getElementById('editProductForm'), cancelEditBtn: document.getElementById('cancel-edit-btn'),
+            addForm: document.getElementById('addProductForm'), tabsContainer: document.querySelector('nav[aria-label="Tabs"]'),
+            tabSections: { 'orders-tab': document.getElementById('order-management-section'), 'products-tab': document.getElementById('product-management-section'), 'users-tab': document.getElementById('user-management-section') }
         };
         
-        let productsData = [];
-        let unsubscribeOrders = null;
+        let productsData = []; let unsubOrders = null; let unsubProducts = null;
 
-        // --- All other functions (showModal, updateNav, handleBuyNow, etc.) are the same ---
-        
-        // --- NEW: Music Toggle Logic ---
-        const toggleMusic = () => {
-            if (UI.musicPlayer.paused) {
-                UI.musicPlayer.play().catch(error => console.log("User needs to interact with the page to play music."));
-                UI.playIcon.classList.add('hidden');
-                UI.muteIcon.classList.remove('hidden');
+        const checkAdminStatus = async (user) => { if (!user) return false; const adminDoc = await getDoc(doc(db, 'admins', user.uid)); return adminDoc.exists(); };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user && await checkAdminStatus(user)) {
+                UI.loginSection.classList.add('hidden'); UI.panelContent.classList.remove('hidden'); UI.logoutButton.classList.remove('hidden');
+                fetchAdminOrders(); fetchAdminProducts();
             } else {
-                UI.musicPlayer.pause();
-                UI.muteIcon.classList.add('hidden');
-                UI.playIcon.classList.remove('hidden');
+                if (user) { await signOut(auth); alert("Access Denied. You are not an admin."); }
+                UI.loginSection.classList.remove('hidden'); UI.panelContent.classList.add('hidden'); UI.logoutButton.classList.add('hidden');
+                if (unsubOrders) unsubOrders(); if (unsubProducts) unsubProducts();
             }
-        };
-
-        // --- Add Event Listener for the Music Button ---
-        UI.musicToggleButton.addEventListener('click', toggleMusic);
-
-
-        // --- ALL OTHER SCRIPT LOGIC IS THE SAME ---
-        // (onAuthStateChanged, handleBuyNow, fetchProducts, fetchUserOrders, etc.)
-        // For brevity, I am not repeating the entire 100+ lines of identical JS.
-        // The only new parts are the music player elements and the toggle function above.
-        // Just ensure you add the new elements to the `UI` object and the new function and listener.
-        const showModal = (title, body, buttons = []) => {
-            UI.modalTitle.textContent = title; UI.modalBody.innerHTML = body; UI.modalFooter.innerHTML = '';
-            if (buttons.length === 0) buttons.push({ text: 'Close', class: 'bg-gray-500', action: hideModal });
-            buttons.forEach(btn => {
-                const el = document.createElement('button');
-                el.textContent = btn.text; el.className = `text-white px-6 py-2 rounded-lg ${btn.class}`; el.onclick = btn.action;
-                UI.modalFooter.appendChild(el);
-            });
-            UI.modal.classList.remove('hidden');
-            setTimeout(() => UI.modalContent.classList.remove('scale-95', 'opacity-0'), 10);
-        };
-        const hideModal = () => {
-            UI.modalContent.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => UI.modal.classList.add('hidden'), 300);
-        };
-
-        const updateNavUI = (user) => {
-            const isLoggedIn = !!user;
-            UI.authSection.classList.toggle('hidden', isLoggedIn); UI.loggedInContent.classList.toggle('hidden', !isLoggedIn);
-            UI.authLinksDesktop.classList.toggle('hidden', isLoggedIn); UI.authLinksMobile.classList.toggle('hidden', isLoggedIn);
-            UI.profileDropdownContainer.classList.toggle('hidden', !isLoggedIn); UI.profileInfoMobile.classList.toggle('hidden', !isLoggedIn);
-            if (isLoggedIn) UI.userEmailDisplays.forEach(el => el.textContent = user.email);
-        };
-
-        onAuthStateChanged(auth, user => {
-            updateNavUI(user);
-            if (user) { fetchProducts(); fetchUserOrders(user.uid); }
-            else { UI.productListDiv.innerHTML = ''; productsData = []; if (unsubscribeOrders) unsubscribeOrders(); }
         });
 
-        const handleBuyNow = (productId) => {
-            const product = productsData.find(p => p.id === productId);
-            if (!product || !auth.currentUser) return;
-            showModal('Confirm Purchase', `Pay <b>$${product.price.toFixed(2)}</b> for <b>${product.name}</b>?<br>This will open your phone dialer.`,
-                [{ text: 'Cancel', class: 'bg-gray-500', action: hideModal },
-                 { text: 'Proceed', class: 'bg-blue-600', action: async () => {
-                    hideModal();
-                    try {
-                        await addDoc(collection(db, "orders"), {
-                            userId: auth.currentUser.uid, userEmail: auth.currentUser.email,
-                            productId: product.id, productName: product.name, price: product.price,
-                            diamonds: product.diamonds, imageUrl: product.imageUrl,
-                            status: "Pending", orderDate: serverTimestamp()
-                        });
-                        window.location.href = `tel:${encodeURIComponent(`*712*613982172*${product.price}#`)}`;
-                    } catch (error) { showModal('Error', 'Could not place order.'); }
-                 }}]
-            );
-        };
-        
-        const showProductDetails = (productId) => {
-            const product = productsData.find(p => p.id === productId); if (!product) return;
-            showModal(product.name, `<img src="${product.imageUrl}" class="w-full h-64 object-cover rounded-lg mb-4"><p>${product.description || 'No details available.'}</p>`);
-        };
-
-        UI.productListDiv.addEventListener('click', (e) => {
-            const card = e.target.closest('.product-card'); if (!card) return;
-            if (e.target.classList.contains('buy-now-btn')) handleBuyNow(card.dataset.id); else showProductDetails(card.dataset.id);
-        });
-        
-        UI.searchBar.addEventListener('keyup', () => {
-            const term = UI.searchBar.value.toLowerCase();
-            document.querySelectorAll('.product-card').forEach(card => card.style.display = card.dataset.name.toLowerCase().includes(term) ? '' : 'none');
+        UI.tabsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                UI.tabsContainer.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+                e.target.classList.add('tab-active');
+                Object.values(UI.tabSections).forEach(section => section.classList.add('hidden'));
+                UI.tabSections[e.target.id].classList.remove('hidden');
+            }
         });
 
-        const fetchProducts = async () => {
-            productsData = []; UI.productListDiv.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
-            const q = query(collection(db, "products"), orderBy("name")); const snapshot = await getDocs(q);
-            UI.productListDiv.innerHTML = '';
-            if(snapshot.empty) UI.productListDiv.innerHTML = `<p class="col-span-full text-center">No products found.</p>`;
-            else snapshot.forEach(doc => {
-                const p = { ...doc.data(), id: doc.id }; productsData.push(p);
-                UI.productListDiv.innerHTML += `
-                    <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-id="${p.id}" data-name="${p.name}">
-                        <img class="h-64 w-full object-cover pointer-events-none" src="${p.imageUrl}" alt="${p.name}">
-                        <div class="p-6 pointer-events-none"><h3 class="text-xl font-semibold">${p.name}</h3><p class="text-sm font-bold text-teal-500 my-2">♦️ ${p.diamonds || 0}</p><p class="text-2xl font-bold mb-4">$${p.price.toFixed(2)}</p></div>
-                        <div class="p-4 pt-0"><button data-id="${p.id}" class="buy-now-btn w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">Buy Now</button></div>
-                    </div>`;
-            });
-        };
-
-        const fetchUserOrders = (userId) => {
-            if (unsubscribeOrders) unsubscribeOrders();
-            const q = query(collection(db, "orders"), where("userId", "==", userId), orderBy("orderDate", "desc"));
-            unsubscribeOrders = onSnapshot(q, (snapshot) => {
-                UI.orderHistoryList.innerHTML = "";
-                if (snapshot.empty) { UI.orderHistoryList.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No orders yet.</td></tr>'; return; }
+        const fetchAdminOrders = () => {
+            if (unsubOrders) unsubOrders();
+            const q = query(collection(db, "orders"), orderBy("orderDate", "desc"));
+            unsubOrders = onSnapshot(q, snapshot => {
+                UI.orderTableBody.innerHTML = "";
+                if (snapshot.empty) { UI.orderTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No orders yet.</td></tr>'; return; }
                 snapshot.forEach(doc => {
-                    const order = doc.data();
-                    const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleDateString() : '...';
+                    const order = { ...doc.data(), id: doc.id }; const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : '...';
                     let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || '';
-                    UI.orderHistoryList.innerHTML += `<tr><td class="p-4 font-medium">${order.productName}</td><td class="p-4">${date}</td><td class="p-4">$${order.price.toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 text-xs rounded-full ${s}">${order.status}</span></td></tr>`;
+                    UI.orderTableBody.innerHTML += `<tr class="text-sm"><td class="p-4">${date}</td><td class="p-4 font-medium">${order.userEmail}</td><td class="p-4">${order.productName}</td><td class="p-4"><span class="px-2 py-1 rounded-full ${s}">${order.status}</span></td><td class="p-4 space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`;
                 });
-            }, () => UI.orderHistoryList.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Error loading orders. A DB index is required.</td></tr>`);
+            });
         };
-
-        UI.forgotPasswordLink.addEventListener('click', async () => {
-            const email = prompt("Enter email for password reset link:");
-            if (email) { try { await sendPasswordResetEmail(auth, email); showModal('Success', 'Password reset link sent.'); } catch (err) { showModal('Error', err.message); }}
+        
+        const handleOrderAction = async (id, status) => { if (confirm(`Set order to ${status}?`)) await updateDoc(doc(db, "orders", id), { status }); };
+        UI.orderTableBody.addEventListener('click', e => {
+            const { classList, dataset } = e.target;
+            if (classList.contains('approve-order-btn')) handleOrderAction(dataset.id, 'Completed');
+            if (classList.contains('reject-order-btn')) handleOrderAction(dataset.id, 'Rejected');
         });
-        
-        UI.loginForm.addEventListener('submit', async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, UI.loginForm.email.value, UI.loginForm.password.value); } catch (err) { showModal('Login Failed', err.message); }});
-        UI.signupForm.addEventListener('submit', async e => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, UI.signupForm.email.value, UI.signupForm.password.value); } catch (err) { showModal('Signup Failed', err.message); }});
-        
-        UI.profileMenuButton.addEventListener('click', () => UI.profileMenu.classList.toggle('hidden'));
-        UI.mobileMenuButton.addEventListener('click', () => UI.mobileMenu.classList.toggle('hidden'));
-        UI.loginTab.addEventListener('click', () => { UI.signupFormContainer.classList.add('hidden'); UI.loginFormContainer.classList.remove('hidden'); UI.loginTab.classList.add('tab-active'); UI.signupTab.classList.remove('tab-active'); });
-        UI.signupTab.addEventListener('click', () => { UI.loginFormContainer.classList.add('hidden'); UI.signupFormContainer.classList.remove('hidden'); UI.signupTab.classList.add('tab-active'); UI.loginTab.classList.remove('tab-active'); });
-        
-        const handleLogout = () => signOut(auth);
-        UI.logoutButtonDesktop.addEventListener('click', handleLogout);
-        UI.logoutButtonMobile.addEventListener('click', handleLogout);
-        UI.modal.addEventListener('click', (e) => { if(e.target === UI.modal) hideModal(); });
 
+        const fetchAdminProducts = () => {
+            if (unsubProducts) unsubProducts();
+            const q = query(collection(db, 'products'), orderBy('name'));
+            unsubProducts = onSnapshot(q, snapshot => {
+                productsData = []; UI.productTableBody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const p = { ...doc.data(), id: doc.id }; productsData.push(p);
+                    UI.productTableBody.innerHTML += `<tr class="text-sm"><td class="p-4"><img src="${p.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${p.name}</td><td class="p-4">$${p.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${p.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${p.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`;
+                });
+            });
+        };
+        
+        UI.productTableBody.addEventListener('click', e => {
+            const { classList, dataset } = e.target;
+            if (classList.contains('delete-product-btn')) { if (confirm('Delete?')) deleteDoc(doc(db, 'products', dataset.id)); }
+            if (classList.contains('edit-product-btn')) {
+                const p = productsData.find(prod => prod.id === dataset.id);
+                if (p) {
+                    const { elements } = UI.editForm;
+                    elements.id.value = p.id; elements.name.value = p.name; elements.price.value = p.price;
+                    elements.diamonds.value = p.diamonds; elements.imageUrl.value = p.imageUrl;
+                    elements.description.value = p.description || '';
+                    UI.editModal.classList.remove('hidden');
+                }
+            }
+        });
+
+        UI.editForm.addEventListener('submit', async e => { e.preventDefault(); const { id, name, price, diamonds, imageUrl, description } = e.target.elements; await updateDoc(doc(db, "products", id.value), { name: name.value, price: parseFloat(price.value), diamonds: parseInt(diamonds.value), imageUrl: imageUrl.value, description: description.value }); UI.editModal.classList.add('hidden'); });
+        UI.addForm.addEventListener('submit', async e => { e.preventDefault(); const { name, price, diamonds, imageUrl, description } = e.target.elements; await addDoc(collection(db, 'products'), { name: name.value, price: parseFloat(price.value), diamonds: parseInt(diamonds.value), imageUrl: imageUrl.value, description: description.value }); UI.addForm.reset(); });
+        UI.loginForm.addEventListener('submit', async e => { e.preventDefault(); UI.loginError.textContent = ''; try { const userCred = await signInWithEmailAndPassword(auth, e.target.elements.email.value, e.target.elements.password.value); if (!await checkAdminStatus(userCred.user)) { UI.loginError.textContent = 'Access Denied.'; signOut(auth); }} catch (err) { UI.loginError.textContent = 'Login failed.'; } });
+        UI.cancelEditBtn.addEventListener('click', () => UI.editModal.classList.add('hidden'));
+        UI.logoutButton.addEventListener('click', () => signOut(auth));
     </script>
 </body>
-</html>```
-
-### File 2: `admin.html` (No Changes Needed)
-
-Music and the other new features are only for the user's side, so your existing `admin.html` file does not need to be changed. It is already complete.
-
-After updating your `index.html` file on GitHub, your live site will have all the new features, including the user-controlled background music.
+</html>

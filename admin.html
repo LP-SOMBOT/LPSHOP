@@ -26,7 +26,7 @@
                 <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-6">Add Product</h2><form id="addProductForm" class="grid md:grid-cols-2 gap-4 mb-8"><div><label>Name</label><input type="text" name="name" required class="w-full p-3 border rounded-md"></div><div><label>Price ($)</label><input type="number" name="price" step="0.01" required class="w-full p-3 border rounded-md"></div><div><label>Diamonds</label><input type="number" name="diamonds" required class="w-full p-3 border rounded-md"></div><div><label>Image URL</label><input type="url" name="imageUrl" required class="w-full p-3 border rounded-md"></div><div class="md:col-span-2"><label>Description</label><textarea name="description" class="w-full p-3 border rounded-md" rows="3"></textarea></div><div class="md:col-span-2"><button type="submit" class="w-full bg-green-600 text-white p-3 rounded-md">Add Product</button></div></form><h2 class="text-2xl font-bold mt-10 mb-6">Product List</h2><div class="overflow-x-auto"><table class="min-w-full"><thead><tr class="bg-gray-50"><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody id="adminProductTableBody" class="divide-y"></tbody></table></div></div>
             </section>
             <section id="user-management-section" class="hidden">
-                 <div class="bg-white p-8 rounded-lg shadow-md text-center"><h2 class="text-2xl font-bold mb-4">Manage Users in Console</h2><p class="mb-6 text-gray-600">Securely manage users via the official Firebase Console.</p><a href="https://console.firebase.google.com/project/lpshop-c8fe6/authentication/users" target="_blank" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg">Open User Console</a></div>
+                 <div class="bg-white p-8 rounded-lg shadow-md text-center"><h2 class="text-2xl font-bold mb-4">Manage Users in Console</h2><p class="mb-6 text-gray-600">Securely manage users via the official Firebase Console.</p><a href="https://console.firebase.google.com/project/lpshop-2/authentication/users" target="_blank" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg">Open User Console</a></div>
             </section>
         </main>
     </div>
@@ -37,7 +37,14 @@
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.14.1/firestore.js';
 
-        const firebaseConfig = { apiKey: 'AIzaSyA2Y1NmbEdDYRNCooSmf6rcdBdeWg3D9Hg', authDomain: 'lpshop-c8fe6.firebaseapp.com', projectId: 'lpshop-c8fe6', storageBucket: 'lpshop-c8fe6.firebasestorage.app', messagingSenderId: '307849631006', appId: '1:307849631006:web:460e06f55a689b19eda50f' };
+        const firebaseConfig = {
+          apiKey: "AIzaSyDhXWZay8NJHcmszfYtx_QZ7v_nxG3ufGw",
+          authDomain: "lpshop-2.firebaseapp.com",
+          projectId: "lpshop-2",
+          storageBucket: "lpshop-2.firebasestorage.app",
+          messagingSenderId: "1060044569045",
+          appId: "1:1060044569045:web:a7446d548160b822d2255c"
+        };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -54,79 +61,50 @@
         
         let productsData = []; let unsubOrders = null; let unsubProducts = null;
 
-        const checkAdminStatus = async (user) => { if (!user) return false; const adminDoc = await getDoc(doc(db, 'admins', user.uid)); return adminDoc.exists(); };
+        const checkIsAdmin = async (user) => { if (!user) return false; const adminDoc = await getDoc(doc(db, 'admins', user.uid)); return adminDoc.exists(); };
+
+        const showDashboard = () => {
+            UI.loginSection.classList.add('hidden'); UI.panelContent.classList.remove('hidden'); UI.logoutButton.classList.remove('hidden');
+            fetchAdminOrders(); fetchAdminProducts();
+        };
+        const showLogin = () => {
+            UI.loginSection.classList.remove('hidden'); UI.panelContent.classList.add('hidden'); UI.logoutButton.classList.add('hidden');
+            if (unsubOrders) unsubOrders(); if (unsubProducts) unsubProducts();
+        };
 
         onAuthStateChanged(auth, async (user) => {
-            if (user && await checkAdminStatus(user)) {
-                UI.loginSection.classList.add('hidden'); UI.panelContent.classList.remove('hidden'); UI.logoutButton.classList.remove('hidden');
-                fetchAdminOrders(); fetchAdminProducts();
-            } else {
-                if (user) { await signOut(auth); alert("Access Denied. You are not an admin."); }
-                UI.loginSection.classList.remove('hidden'); UI.panelContent.classList.add('hidden'); UI.logoutButton.classList.add('hidden');
-                if (unsubOrders) unsubOrders(); if (unsubProducts) unsubProducts();
-            }
+            if (user) { const isAdmin = await checkIsAdmin(user); if (isAdmin) { showDashboard(); } else { await signOut(auth); showLogin(); }
+            } else { showLogin(); }
         });
 
-        UI.tabsContainer.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                UI.tabsContainer.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
-                e.target.classList.add('tab-active');
-                Object.values(UI.tabSections).forEach(section => section.classList.add('hidden'));
-                UI.tabSections[e.target.id].classList.remove('hidden');
-            }
-        });
-
-        const fetchAdminOrders = () => {
-            if (unsubOrders) unsubOrders();
-            const q = query(collection(db, "orders"), orderBy("orderDate", "desc"));
-            unsubOrders = onSnapshot(q, snapshot => {
-                UI.orderTableBody.innerHTML = "";
-                if (snapshot.empty) { UI.orderTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No orders yet.</td></tr>'; return; }
-                snapshot.forEach(doc => {
-                    const order = { ...doc.data(), id: doc.id }; const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : '...';
-                    let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || '';
-                    UI.orderTableBody.innerHTML += `<tr class="text-sm"><td class="p-4">${date}</td><td class="p-4 font-medium">${order.userEmail}</td><td class="p-4">${order.productName}</td><td class="p-4"><span class="px-2 py-1 rounded-full ${s}">${order.status}</span></td><td class="p-4 space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`;
-                });
-            });
-        };
-        
-        const handleOrderAction = async (id, status) => { if (confirm(`Set order to ${status}?`)) await updateDoc(doc(db, "orders", id), { status }); };
-        UI.orderTableBody.addEventListener('click', e => {
-            const { classList, dataset } = e.target;
-            if (classList.contains('approve-order-btn')) handleOrderAction(dataset.id, 'Completed');
-            if (classList.contains('reject-order-btn')) handleOrderAction(dataset.id, 'Rejected');
-        });
-
-        const fetchAdminProducts = () => {
-            if (unsubProducts) unsubProducts();
-            const q = query(collection(db, 'products'), orderBy('name'));
-            unsubProducts = onSnapshot(q, snapshot => {
-                productsData = []; UI.productTableBody.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const p = { ...doc.data(), id: doc.id }; productsData.push(p);
-                    UI.productTableBody.innerHTML += `<tr class="text-sm"><td class="p-4"><img src="${p.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${p.name}</td><td class="p-4">$${p.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${p.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${p.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`;
-                });
-            });
-        };
-        
-        UI.productTableBody.addEventListener('click', e => {
-            const { classList, dataset } = e.target;
-            if (classList.contains('delete-product-btn')) { if (confirm('Delete?')) deleteDoc(doc(db, 'products', dataset.id)); }
-            if (classList.contains('edit-product-btn')) {
-                const p = productsData.find(prod => prod.id === dataset.id);
-                if (p) {
-                    const { elements } = UI.editForm;
-                    elements.id.value = p.id; elements.name.value = p.name; elements.price.value = p.price;
-                    elements.diamonds.value = p.diamonds; elements.imageUrl.value = p.imageUrl;
-                    elements.description.value = p.description || '';
-                    UI.editModal.classList.remove('hidden');
+        // --- THE CRITICAL FIX IS HERE ---
+        UI.loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // This stops the page from reloading
+            UI.loginError.textContent = '';
+            const email = e.target.elements.email.value;
+            const password = e.target.elements.password.value;
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                // After successful login, check if they are an admin
+                if (!await checkIsAdmin(userCredential.user)) {
+                    UI.loginError.textContent = 'Access Denied. You are not an admin.';
+                    await signOut(auth); // Sign out non-admins
                 }
+                // If they are an admin, onAuthStateChanged will handle showing the dashboard.
+            } catch (error) {
+                UI.loginError.textContent = 'Login failed. Check credentials.';
             }
         });
 
+        // The rest of the functions are correct and unchanged
+        UI.tabsContainer.addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { UI.tabsContainer.querySelectorAll('button').forEach(b => b.classList.remove('tab-active')); e.target.classList.add('tab-active'); Object.values(UI.tabSections).forEach(section => section.classList.add('hidden')); UI.tabSections[e.target.id].classList.remove('hidden'); } });
+        const fetchAdminOrders = () => { if (unsubOrders) unsubOrders(); const q = query(collection(db, "orders"), orderBy("orderDate", "desc")); unsubOrders = onSnapshot(q, snapshot => { UI.orderTableBody.innerHTML = ""; if (snapshot.empty) { UI.orderTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No orders yet.</td></tr>'; return; } snapshot.forEach(doc => { const order = { ...doc.data(), id: doc.id }; const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : '...'; let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || ''; UI.orderTableBody.innerHTML += `<tr class="text-sm"><td class="p-4">${date}</td><td class="p-4 font-medium">${order.userEmail}</td><td class="p-4">${order.productName}</td><td class="p-4"><span class="px-2 py-1 rounded-full ${s}">${order.status}</span></td><td class="p-4 space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`; }); }); };
+        const handleOrderAction = async (id, status) => { if (confirm(`Set order to ${status}?`)) await updateDoc(doc(db, "orders", id), { status }); };
+        UI.orderTableBody.addEventListener('click', e => { const { classList, dataset } = e.target; if (classList.contains('approve-order-btn')) handleOrderAction(dataset.id, 'Completed'); if (classList.contains('reject-order-btn')) handleOrderAction(dataset.id, 'Rejected'); });
+        const fetchAdminProducts = () => { if (unsubProducts) unsubProducts(); const q = query(collection(db, 'products'), orderBy('name')); unsubProducts = onSnapshot(q, snapshot => { productsData = []; UI.productTableBody.innerHTML = ''; snapshot.forEach(doc => { const p = { ...doc.data(), id: doc.id }; productsData.push(p); UI.productTableBody.innerHTML += `<tr class="text-sm"><td class="p-4"><img src="${p.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${p.name}</td><td class="p-4">$${p.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${p.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${p.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`; }); }); };
+        UI.productTableBody.addEventListener('click', e => { const { classList, dataset } = e.target; if (classList.contains('delete-product-btn')) { if (confirm('Delete?')) deleteDoc(doc(db, 'products', dataset.id)); } if (classList.contains('edit-product-btn')) { const p = productsData.find(prod => prod.id === dataset.id); if (p) { const { elements } = UI.editForm; elements.id.value = p.id; elements.name.value = p.name; elements.price.value = p.price; elements.diamonds.value = p.diamonds; elements.imageUrl.value = p.imageUrl; elements.description.value = p.description || ''; UI.editModal.classList.remove('hidden'); } } });
         UI.editForm.addEventListener('submit', async e => { e.preventDefault(); const { id, name, price, diamonds, imageUrl, description } = e.target.elements; await updateDoc(doc(db, "products", id.value), { name: name.value, price: parseFloat(price.value), diamonds: parseInt(diamonds.value), imageUrl: imageUrl.value, description: description.value }); UI.editModal.classList.add('hidden'); });
         UI.addForm.addEventListener('submit', async e => { e.preventDefault(); const { name, price, diamonds, imageUrl, description } = e.target.elements; await addDoc(collection(db, 'products'), { name: name.value, price: parseFloat(price.value), diamonds: parseInt(diamonds.value), imageUrl: imageUrl.value, description: description.value }); UI.addForm.reset(); });
-        UI.loginForm.addEventListener('submit', async e => { e.preventDefault(); UI.loginError.textContent = ''; try { const userCred = await signInWithEmailAndPassword(auth, e.target.elements.email.value, e.target.elements.password.value); if (!await checkAdminStatus(userCred.user)) { UI.loginError.textContent = 'Access Denied.'; signOut(auth); }} catch (err) { UI.loginError.textContent = 'Login failed.'; } });
         UI.cancelEditBtn.addEventListener('click', () => UI.editModal.classList.add('hidden'));
         UI.logoutButton.addEventListener('click', () => signOut(auth));
     </script>

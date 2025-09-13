@@ -3,114 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LP SHOP Admin Panel - DEBUG</title>
+    <title>LP SHOP Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .tab-active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
-        #error-display { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 1rem; margin-top: 1rem; border-radius: 0.5rem; white-space: pre-wrap; word-wrap: break-word; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
-    <nav class="bg-indigo-700 p-4 text-white shadow-md"><div class="container mx-auto flex justify-between items-center"><h1 class="text-2xl font-bold">LP SHOP Admin Panel</h1><button id="adminLogoutButton" class="bg-red-500 text-white font-bold py-2 px-4 rounded hidden">Logout</button></div></nav>
+    <nav class="bg-indigo-700 p-4 text-white shadow-md"><div class="container mx-auto flex justify-between items-center"><h1 class="text-2xl font-bold">LP SHOP Admin Panel</h1><button id="adminLogoutButton" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded hidden">Logout</button></div></nav>
     <div class="container mx-auto p-6">
-        <!-- ERROR DISPLAY DIV -->
-        <div id="error-display" class="hidden"></div>
-
         <section id="admin-login-section" class="bg-white p-8 rounded-lg shadow-md mb-8 max-w-md mx-auto">
              <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Admin Login</h2>
             <form id="adminLoginForm" class="space-y-4"><input name="email" type="email" placeholder="Admin Email" required class="w-full p-3 border rounded-md"><input name="password" type="password" placeholder="Admin Password" required class="w-full p-3 border rounded-md"><button type="submit" class="w-full bg-indigo-600 text-white p-3 rounded-md">Login</button><p id="adminLoginError" class="text-red-500 text-sm mt-2 text-center h-4"></p></form>
         </section>
         <main id="admin-panel-content" class="hidden">
-            <!-- Dashboard Content -->
+            <div class="mb-6 border-b border-gray-200"><nav class="-mb-px flex space-x-4" aria-label="Tabs"><button id="orders-tab" class="tab-active py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Orders</button><button id="products-tab" class="text-gray-500 py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Products</button><button id="users-tab" class="text-gray-500 py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg">Users</button></nav></div>
+            <section id="order-management-section">
+                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-6">Manage Orders</h2><div class="overflow-x-auto"><table class="min-w-full"><thead><tr class="bg-gray-50"><th>Date</th><th>Customer</th><th>Product</th><th>Status</th><th>Actions</th></tr></thead><tbody id="adminOrderTableBody" class="divide-y"></tbody></table></div></div>
+            </section>
+            <section id="product-management-section" class="hidden">
+                <div class="bg-white p-8 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-6">Add Product</h2><form id="addProductForm" class="grid md:grid-cols-2 gap-4 mb-8"><div><label>Name</label><input type="text" name="name" required class="w-full p-3 border rounded-md"></div><div><label>Price ($)</label><input type="number" name="price" step="0.01" required class="w-full p-3 border rounded-md"></div><div><label>Diamonds</label><input type="number" name="diamonds" required class="w-full p-3 border rounded-md"></div><div><label>Image URL</label><input type="url" name="imageUrl" required class="w-full p-3 border rounded-md"></div><div class="md:col-span-2"><label>Description</label><textarea name="description" class="w-full p-3 border rounded-md" rows="3"></textarea></div><div class="md:col-span-2"><button type="submit" class="w-full bg-green-600 text-white p-3 rounded-md">Add Product</button></div></form><h2 class="text-2xl font-bold mt-10 mb-6">Product List</h2><div class="overflow-x-auto"><table class="min-w-full"><thead><tr class="bg-gray-50"><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody id="adminProductTableBody" class="divide-y"></tbody></table></div></div>
+            </section>
+            <section id="user-management-section" class="hidden">
+                 <div class="bg-white p-8 rounded-lg shadow-md text-center"><h2 class="text-2xl font-bold mb-4">Manage Users in Console</h2><p class="mb-6 text-gray-600">Securely manage users via the official Firebase Console.</p><a href="https://console.firebase.google.com/project/lpshop-2/authentication/users" target="_blank" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg">Open User Console</a></div>
+            </section>
         </main>
     </div>
-    
+    <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop"><div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6"><h3 class="text-2xl font-bold mb-4">Edit Product</h3><form id="editProductForm"><input type="hidden" name="id"><div class="space-y-4"><div><label>Name</label><input type="text" name="name" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Price ($)</label><input type="number" name="price" step="0.01" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Diamonds</label><input type="number" name="diamonds" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Image URL</label><input type="url" name="imageUrl" required class="mt-1 w-full border rounded-md py-2 px-3"></div><div><label>Description</label><textarea name="description" class="mt-1 w-full border rounded-md py-2 px-3" rows="3"></textarea></div></div><div class="mt-6 flex justify-end space-x-3"><button type="button" id="cancel-edit-btn" class="bg-gray-200 px-4 py-2 rounded-md">Cancel</button><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Save</button></div></form></div></div>
+
     <script type="module">
-        // --- THIS SCRIPT IS FOR DEBUGGING ONLY ---
-        const errorDisplay = document.getElementById('error-display');
-        
-        // Global error handler to catch any uncaught exceptions
-        window.onerror = function (message, source, lineno, colno, error) {
-            errorDisplay.classList.remove('hidden');
-            errorDisplay.innerHTML = `<strong>A critical error occurred:</strong><br>
-                Message: ${message}<br>
-                Source: ${source.split('/').pop()}<br>
-                Line: ${lineno}, Column: ${colno}<br>
-                Error Type: ${error ? error.name : 'N/A'}`;
-            return true;
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.14.1/firestore.js';
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDhXWZay8NJHcmszfYtx_QZ7v_nxG3ufGw",
+          authDomain: "lpshop-2.firebaseapp.com",
+          projectId: "lpshop-2",
+          storageBucket: "lpshop-2.firebasestorage.app",
+          messagingSenderId: "1060044569045",
+          appId: "1:1060044569045:web:a7446d548160b822d2255c"
         };
-
-        try {
-            // All your regular code will be inside this try...catch block
-            const loginSection = document.getElementById('admin-login-section');
-            const panelContent = document.getElementById('admin-panel-content');
-            const loginForm = document.getElementById('adminLoginForm');
-            const loginError = document.getElementById('adminLoginError');
-
-            loginSection.classList.remove('hidden'); // Ensure login is visible initially
-
-            // Attempt to import and initialize Firebase
-            const firebase = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js');
-            const auth_fns = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js');
-            const firestore_fns = await import('https://www.gstatic.com/firebasejs/10.14.1/firestore.js');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
         
-            const firebaseConfig = {
-              apiKey: "AIzaSyDhXWZay8NJHcmszfYtx_QZ7v_nxG3ufGw",
-              authDomain: "lpshop-2.firebaseapp.com",
-              projectId: "lpshop-2",
-              storageBucket: "lpshop-2.firebasestorage.app",
-              messagingSenderId: "1060044569045",
-              appId: "1:1060044569045:web:a7446d548160b822d2255c"
-            };
+        const UI = {
+            loginSection: document.getElementById('admin-login-section'), panelContent: document.getElementById('admin-panel-content'),
+            logoutButton: document.getElementById('adminLogoutButton'), loginForm: document.getElementById('adminLoginForm'),
+            loginError: document.getElementById('adminLoginError'), productTableBody: document.getElementById('adminProductTableBody'),
+            orderTableBody: document.getElementById('adminOrderTableBody'), editModal: document.getElementById('edit-modal'),
+            editForm: document.getElementById('editProductForm'), cancelEditBtn: document.getElementById('cancel-edit-btn'),
+            addForm: document.getElementById('addProductForm'), tabsContainer: document.querySelector('nav[aria-label="Tabs"]'),
+            tabSections: { 'orders-tab': document.getElementById('order-management-section'), 'products-tab': document.getElementById('product-management-section'), 'users-tab': document.getElementById('user-management-section') }
+        };
+        
+        let productsData = []; let unsubOrders = null; let unsubProducts = null;
 
-            const app = firebase.initializeApp(firebaseConfig);
-            const auth = auth_fns.getAuth(app);
-            const db = firestore_fns.getFirestore(app);
+        const checkIsAdmin = async (user) => { if (!user) return false; const adminDoc = await getDoc(doc(db, 'admins', user.uid)); return adminDoc.exists(); };
+        const showDashboard = () => { UI.loginSection.classList.add('hidden'); UI.panelContent.classList.remove('hidden'); UI.logoutButton.classList.remove('hidden'); fetchAdminOrders(); fetchAdminProducts(); };
+        const showLogin = () => { UI.loginSection.classList.remove('hidden'); UI.panelContent.classList.add('hidden'); UI.logoutButton.classList.add('hidden'); if (unsubOrders) unsubOrders(); if (unsubProducts) unsubProducts(); };
 
-            const checkIsAdmin = async (user) => {
-                if (!user) return false;
-                const adminDocRef = firestore_fns.doc(db, 'admins', user.uid);
-                const adminDoc = await firestore_fns.getDoc(adminDocRef);
-                return adminDoc.exists();
-            };
+        onAuthStateChanged(auth, async (user) => {
+            if (user) { const isAdmin = await checkIsAdmin(user); if (isAdmin) { showDashboard(); } else { await signOut(auth); showLogin(); } }
+            else { showLogin(); }
+        });
 
-            auth_fns.onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    const isAdmin = await checkIsAdmin(user);
-                    if (isAdmin) {
-                        loginSection.classList.add('hidden');
-                        panelContent.classList.remove('hidden');
-                        panelContent.innerHTML = '<h1>Welcome, Admin!</h1><p>Dashboard is loading...</p>'; // Simplified dashboard
-                    } else {
-                        await auth_fns.signOut(auth);
-                        loginError.textContent = 'Access Denied.';
-                    }
-                } else {
-                    loginSection.classList.remove('hidden');
-                    panelContent.classList.add('hidden');
-                }
-            });
+        UI.loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); UI.loginError.textContent = '';
+            try { await signInWithEmailAndPassword(auth, e.target.elements.email.value, e.target.elements.password.value); }
+            catch (error) { UI.loginError.textContent = 'Login failed. Check credentials.'; }
+        });
 
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                loginError.textContent = 'Logging in...';
-                const email = e.target.elements.email.value;
-                const password = e.target.elements.password.value;
-                try {
-                    await auth_fns.signInWithEmailAndPassword(auth, email, password);
-                } catch (error) {
-                    loginError.textContent = `Login failed: ${error.code}`;
-                }
-            });
-
-        } catch (error) {
-            // This will catch initialization errors
-            errorDisplay.classList.remove('hidden');
-            errorDisplay.innerHTML = `<strong>A script initialization error occurred:</strong><br>
-                Message: ${error.message}<br>
-                Stack: ${error.stack}`;
-        }
+        UI.tabsContainer.addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { UI.tabsContainer.querySelectorAll('button').forEach(b => b.classList.remove('tab-active')); e.target.classList.add('tab-active'); Object.values(UI.tabSections).forEach(section => section.classList.add('hidden')); UI.tabSections[e.target.id].classList.remove('hidden'); } });
+        const fetchAdminOrders = () => { if (unsubOrders) unsubOrders(); const q = query(collection(db, "orders"), orderBy("orderDate", "desc")); unsubOrders = onSnapshot(q, snapshot => { UI.orderTableBody.innerHTML = ""; if (snapshot.empty) { UI.orderTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No orders yet.</td></tr>'; return; } snapshot.forEach(doc => { const order = { ...doc.data(), id: doc.id }; const date = order.orderDate ? new Date(order.orderDate.seconds * 1000).toLocaleString() : '...'; let s = { 'Pending': 'bg-yellow-100 text-yellow-800', 'Completed': 'bg-green-100 text-green-800', 'Rejected': 'bg-red-100 text-red-800' }[order.status] || ''; UI.orderTableBody.innerHTML += `<tr class="text-sm"><td class="p-4">${date}</td><td class="p-4 font-medium">${order.userEmail}</td><td class="p-4">${order.productName}</td><td class="p-4"><span class="px-2 py-1 rounded-full ${s}">${order.status}</span></td><td class="p-4 space-x-2">${order.status === 'Pending' ? `<button data-id="${order.id}" class="approve-order-btn bg-green-500 text-white py-1 px-3 rounded">Approve</button><button data-id="${order.id}" class="reject-order-btn bg-red-500 text-white py-1 px-3 rounded">Reject</button>` : `-`}</td></tr>`; }); }); };
+        const handleOrderAction = async (id, status) => { if (confirm(`Set order to ${status}?`)) await updateDoc(doc(db, "orders", id), { status }); };
+        UI.orderTableBody.addEventListener('click', e => { const { classList, dataset } = e.target; if (classList.contains('approve-order-btn')) handleOrderAction(dataset.id, 'Completed'); if (classList.contains('reject-order-btn')) handleOrderAction(dataset.id, 'Rejected'); });
+        const fetchAdminProducts = () => { if (unsubProducts) unsubProducts(); const q = query(collection(db, 'products'), orderBy('name')); unsubProducts = onSnapshot(q, snapshot => { productsData = []; UI.productTableBody.innerHTML = ''; snapshot.forEach(doc => { const p = { ...doc.data(), id: doc.id }; productsData.push(p); UI.productTableBody.innerHTML += `<tr class="text-sm"><td class="p-4"><img src="${p.imageUrl}" class="h-12 w-12 object-cover rounded"></td><td class="p-4 font-medium">${p.name}</td><td class="p-4">$${p.price.toFixed(2)}</td><td class="p-4 space-x-2"><button data-id="${p.id}" class="edit-product-btn bg-blue-500 text-white py-1 px-3 rounded">Edit</button><button data-id="${p.id}" class="delete-product-btn bg-red-500 text-white py-1 px-3 rounded">Delete</button></td></tr>`; }); }); };
+        UI.productTableBody.addEventListener('click', e => { const { classList, dataset } = e.target; if (classList.contains('delete-product-btn')) { if (confirm('Delete?')) deleteDoc(doc(db, 'products', dataset.id)); } if (classList.contains('edit-product-btn')) { const p = productsData.find(prod => prod.id === dataset.id); if (p) { const { elements } = UI.editForm; elements.id.value = p.id; elements.name.value = p.name; elements.price.value = p.price; elements.diamonds.value = p.diamonds; elements.imageUrl.value = p.imageUrl; elements.description.value = p.description || ''; UI.editModal.classList.remove('hidden'); } } });
+        UI.editForm.addEventListener('submit', async e => { e.preventDefault(); const { id, name, price, diamonds, imageUrl, description } = e.target.elements; await updateDoc(doc(db, "products", id.value), { name: name.value, price: parseFloat(price.value), diamonds: parseInt(diamonds.value), imageUrl: imageUrl.value, description: description.value }); UI.editModal.classList.add('hidden'); });
+        UI.addForm.addEventListener('submit', async e => { e.preventDefault(); const { name, price, diamonds, imageUrl, description } = e.target.elements; await addDoc(collection(db, 'products'), { name: name.value, price: parseFloat(price.value), diamonds: parseInt(diamonds.value), imageUrl: imageUrl.value, description: description.value }); UI.addForm.reset(); });
+        UI.cancelEditBtn.addEventListener('click', () => UI.editModal.classList.add('hidden'));
+        UI.logoutButton.addEventListener('click', () => signOut(auth));
     </script>
 </body>
 </html>
